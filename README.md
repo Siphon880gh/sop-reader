@@ -10,10 +10,11 @@ By Weng (Weng Fei Fung)
 ## Summary
 
 • **Zero-configuration markdown viewer** - Drop `.md` files in `documents/` folder, they instantly appear in web dropdown
-• **Intelligent mindmap generation** - Automatically creates Mermaid.js mindmaps from markdown lists with configurable layouts (spider/tree)
+• **Intelligent mindmap generation** - Automatically creates Mermaid.js mindmaps from markdown lists with configurable layouts (spider/tree) and instant prerendering
 • **Dual-mode viewing** - Toggle between rendered HTML and raw markdown with interactive table of contents
 • **Static hosting compatible** - Built with vanilla HTML/CSS/JavaScript, markdown-it, and automated build system
-• **Modern responsive UI** - Gradient design with smooth navigation and file watching for seamless development
+• **Modern responsive UI** - Gradient design with smooth navigation, dedicated mindmap styling, and file watching for seamless development
+• **Performance optimized** - Mindmap prerendering for instant display and CSS-based branch coloring with golden-angle palette
 
 *For detailed technical context and AI-friendly documentation, see [`context.md`](context.md) and feature-specific context files (`context-*.md`)*
 
