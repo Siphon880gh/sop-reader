@@ -1,0 +1,25 @@
+{
+  "name": "mdmindmap",
+  "version": "1.0.0",
+  "description": "A markdown document viewer with dynamic file listing",
+  "main": "index.html",
+  "scripts": {
+    "build": "node scripts/generateFileList.js",
+    "dev": "npm run build && python3 -m http.server 8000 --bind 127.0.0.1",
+    "serve": "python3 -m http.server 8000 --bind 127.0.0.1",
+    "watch": "node scripts/watch.js"
+  },
+  "keywords": [
+    "markdown",
+    "viewer",
+    "static-site"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "chokidar": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

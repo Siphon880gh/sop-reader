@@ -287,40 +287,63 @@
             typographer: true  // Enable some language-neutral replacement + quotes beautification
         });
 
-        // List of markdown files (since we can't dynamically list files in a static site)
-        // You can add more .md files to the documents/ folder and update this array
-        const markdownFiles = [
-            'doc.md',
-            'sample.md'
-        ];
+        // Global variable to store the loaded file list
+        let markdownFiles = [];
 
         async function loadFileList() {
             const fileSelect = document.getElementById('file-select');
             
-            // Clear loading option
-            fileSelect.innerHTML = '';
-            
-            if (markdownFiles.length === 0) {
-                fileSelect.innerHTML = '<option value="">No markdown files found</option>';
-                return;
-            }
-            
-            // Add default option
-            fileSelect.innerHTML = '<option value="">Select a file...</option>';
-            
-            // Add each markdown file as an option
-            markdownFiles.forEach(file => {
-                const option = document.createElement('option');
-                option.value = file;
-                option.textContent = file;
-                fileSelect.appendChild(option);
-            });
-            
-            // Enable the select and select the first file by default
-            fileSelect.disabled = false;
-            if (markdownFiles.length > 0) {
-                fileSelect.value = markdownFiles[0];
-                loadMarkdownFile(markdownFiles[0]);
+            try {
+                // Fetch the generated file list
+                const response = await fetch('markdownFiles.json');
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load file list: ${response.status}`);
+                }
+                
+                const fileData = await response.json();
+                markdownFiles = fileData.files;
+                
+                // Clear loading option
+                fileSelect.innerHTML = '';
+                
+                if (markdownFiles.length === 0) {
+                    fileSelect.innerHTML = '<option value="">No markdown files found</option>';
+                    return;
+                }
+                
+                // Add default option
+                fileSelect.innerHTML = '<option value="">Select a file...</option>';
+                
+                // Add each markdown file as an option
+                markdownFiles.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.filename;
+                    option.textContent = `${file.name} (${(file.size / 1024).toFixed(1)}KB)`;
+                    fileSelect.appendChild(option);
+                });
+                
+                // Enable the select and select the first file by default
+                fileSelect.disabled = false;
+                if (markdownFiles.length > 0) {
+                    fileSelect.value = markdownFiles[0].filename;
+                    loadMarkdownFile(markdownFiles[0].filename);
+                }
+                
+            } catch (error) {
+                console.error('Error loading file list:', error);
+                fileSelect.innerHTML = '<option value="">Error loading file list</option>';
+                
+                // Show error in the content area
+                const errorEl = document.getElementById('error');
+                const loadingEl = document.getElementById('loading');
+                
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.innerHTML = `
+                    <strong>Error loading file list:</strong> ${error.message}<br>
+                    <small>Make sure to run 'npm run build' to generate the file list.</small>
+                `;
             }
         }
 
