@@ -331,14 +331,42 @@ img[src*="1x1"], img[src$="1x1.png"] {
 	transform-origin: center center;
 }
 
-.mindmap-content .mindmap-diagram.zoomed,
-.mindmap-fullscreen-content .mindmap-diagram.zoomed {
+.mindmap-content .mindmap-diagram.draggable,
+.mindmap-fullscreen-content .mindmap-diagram.draggable {
 	cursor: grab;
 }
 
-.mindmap-content .mindmap-diagram.zoomed:active,
-.mindmap-fullscreen-content .mindmap-diagram.zoomed:active {
+.mindmap-content .mindmap-diagram.dragging,
+.mindmap-fullscreen-content .mindmap-diagram.dragging,
+.mindmap-content .mindmap-diagram.draggable:active,
+.mindmap-fullscreen-content .mindmap-diagram.draggable:active {
 	cursor: grabbing;
+}
+
+/* Enhanced visual feedback for dragging */
+.mindmap-content .mindmap-diagram.dragging,
+.mindmap-fullscreen-content .mindmap-diagram.dragging {
+	opacity: 0.8;
+	transition: opacity 0.1s ease;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+/* Prevent text selection on draggable mindmaps */
+.mindmap-content .mindmap-diagram.draggable,
+.mindmap-fullscreen-content .mindmap-diagram.draggable {
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
+
+.mindmap-content .mindmap-diagram.zoomed,
+.mindmap-fullscreen-content .mindmap-diagram.zoomed {
+	/* Additional styling for zoomed state - handled by transform */
+	transform-origin: center center;
 }
 
 /* Responsive styles for Mindmap */

@@ -557,6 +557,13 @@ async function updateMindmapDisplay() {
             // Apply styling to the prerendered mindmap
             applyMindmapTextStyling(mindmapId);
             
+            // Enable dragging for the prerendered mindmap
+            const prerenderedDiagram = document.getElementById(mindmapId);
+            if (prerenderedDiagram) {
+                prerenderedDiagram.classList.add('draggable');
+                enableDragging(prerenderedDiagram);
+            }
+            
             return; // Exit early since we used prerendered content
         }
         
@@ -578,6 +585,13 @@ async function updateMindmapDisplay() {
         
         // FORCE text color changes after Mermaid renders
         applyMindmapTextStyling(mindmapId);
+        
+        // Enable dragging for the newly created mindmap
+        const newMindmapDiagram = document.getElementById(mindmapId);
+        if (newMindmapDiagram) {
+            newMindmapDiagram.classList.add('draggable');
+            enableDragging(newMindmapDiagram);
+        }
         
     } catch (error) {
         console.error('Error rendering mindmap:', error);
@@ -651,23 +665,33 @@ function applyZoom(container) {
         const transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoomLevel})`;
         mindmapDiagram.style.transform = transform;
         
-        // Add/remove zoomed class for cursor styling
+        // Enable dragging for all mindmaps (not just zoomed ones)
+        mindmapDiagram.classList.add('draggable');
+        enableDragging(mindmapDiagram);
+        
+        // Add zoomed class for additional styling when zoomed
         if (currentZoomLevel > 1) {
             mindmapDiagram.classList.add('zoomed');
-            enableDragging(mindmapDiagram);
         } else {
             mindmapDiagram.classList.remove('zoomed');
-            disableDragging(mindmapDiagram);
         }
     }
 }
 
-// Dragging functionality for zoomed mindmaps
+// Dragging functionality for mindmaps
 function enableDragging(element) {
+    // Remove existing listeners to prevent duplicates
+    disableDragging(element);
+    
     element.addEventListener('mousedown', startDrag);
     element.addEventListener('mousemove', drag);
     element.addEventListener('mouseup', endDrag);
     element.addEventListener('mouseleave', endDrag);
+    
+    // Add touch support for mobile devices
+    element.addEventListener('touchstart', startDragTouch);
+    element.addEventListener('touchmove', dragTouch);
+    element.addEventListener('touchend', endDrag);
 }
 
 function disableDragging(element) {
@@ -675,28 +699,71 @@ function disableDragging(element) {
     element.removeEventListener('mousemove', drag);
     element.removeEventListener('mouseup', endDrag);
     element.removeEventListener('mouseleave', endDrag);
+    
+    // Remove touch listeners
+    element.removeEventListener('touchstart', startDragTouch);
+    element.removeEventListener('touchmove', dragTouch);
+    element.removeEventListener('touchend', endDrag);
 }
 
 function startDrag(e) {
-    if (currentZoomLevel > 1) {
-        isDragging = true;
-        dragStartX = e.clientX - translateX;
-        dragStartY = e.clientY - translateY;
-        e.preventDefault();
-    }
+    // Enable dragging at all zoom levels
+    isDragging = true;
+    dragStartX = e.clientX - translateX;
+    dragStartY = e.clientY - translateY;
+    
+    // Add visual feedback
+    e.target.closest('.mindmap-diagram').classList.add('dragging');
+    
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 function drag(e) {
-    if (isDragging && currentZoomLevel > 1) {
+    if (isDragging) {
         translateX = e.clientX - dragStartX;
         translateY = e.clientY - dragStartY;
         applyZoom();
         e.preventDefault();
+        e.stopPropagation();
     }
 }
 
-function endDrag() {
-    isDragging = false;
+function endDrag(e) {
+    if (isDragging) {
+        isDragging = false;
+        
+        // Remove visual feedback
+        const diagram = e.target.closest('.mindmap-diagram');
+        if (diagram) {
+            diagram.classList.remove('dragging');
+        }
+    }
+}
+
+// Touch support for mobile devices
+function startDragTouch(e) {
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        isDragging = true;
+        dragStartX = touch.clientX - translateX;
+        dragStartY = touch.clientY - translateY;
+        
+        // Add visual feedback
+        e.target.closest('.mindmap-diagram').classList.add('dragging');
+        
+        e.preventDefault();
+    }
+}
+
+function dragTouch(e) {
+    if (isDragging && e.touches.length === 1) {
+        const touch = e.touches[0];
+        translateX = touch.clientX - dragStartX;
+        translateY = touch.clientY - dragStartY;
+        applyZoom();
+        e.preventDefault();
+    }
 }
 
 // Full screen modal functions
@@ -717,6 +784,10 @@ function openFullScreenMindmap() {
             clonedDiagram.style.transform = ''; // Reset any zoom/transform
             fullScreenContent.innerHTML = '';
             fullScreenContent.appendChild(clonedDiagram);
+            
+            // Enable dragging for the fullscreen mindmap
+            clonedDiagram.classList.add('draggable');
+            enableDragging(clonedDiagram);
             
             // Reset zoom for full screen
             currentZoomLevel = 1;
