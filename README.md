@@ -11,14 +11,14 @@ By Weng (Weng Fei Fung)
 
 - **Zero-configuration markdown viewer** that auto-discovers `.md` files in `documents/` folder with instant web dropdown access
 - **Intelligent mindmap generation** from markdown lists using Mermaid.js with configurable layouts (spider/tree), zoom controls, and full-screen mode
+- **Link popover previews** that fetch and display webpage excerpts on hover using boundary word patterns (A..B or A...B)
 - **Dual-mode viewing** between rendered HTML and raw markdown with interactive table of contents navigation
 - **Static hosting compatible** using vanilla HTML/CSS/JavaScript, markdown-it rendering, and automated build system
-- **Modern responsive UI** with gradient design, dedicated mindmap styling, smooth animations, and development file watching
+- **Modern responsive UI** with gradient design, dedicated styling for mindmaps and popovers, smooth animations, and development file watching
 
 *For detailed technical context and AI-friendly documentation, see [`context.md`](context.md) and feature-specific context files (`context-*.md`)*
 
-In the future:
-While it is an SOP reader for Markdown documents in a folder: It not only builds a table of contents, but also generates mind maps and displays link popovers with preview excerpts defined by selecting the starting and ending words.
+**Current Features**: This SOP reader for Markdown documents in a folder builds a table of contents, generates interactive mind maps, and displays link popovers with preview excerpts defined by selecting starting and ending boundary words.
 
 ---
 
@@ -32,7 +32,8 @@ While it is an SOP reader for Markdown documents in a folder: It not only builds
 - 🎨 **Dual-Mode Viewing**: Toggle between rendered HTML and raw markdown
 - 📋 **Interactive Table of Contents**: Floating TOC panel with smooth scroll navigation
 - 🧠 **Intelligent Mindmap Generation**: Automatically detects markdown lists with placeholder images and generates interactive Mermaid.js mindmaps with configurable layout types (spider/tree)
-- 🎨 **Modern UI**: Clean, responsive design with gradient styling and contextual UI elements
+- 🔗 **Link Popover Previews**: Hover-based content previews that fetch and extract text from external webpages using boundary word patterns
+- 🎨 **Modern UI**: Clean, responsive design with gradient styling, enhanced link indicators, and contextual UI elements
 - ⚡ **Fast Rendering**: Powered by markdown-it with full feature support
 
 ## Quick Start
