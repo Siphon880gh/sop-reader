@@ -1,24 +1,19 @@
 # Markdown Mind Map Viewer
 
-**A dynamic markdown document viewer that automatically discovers and renders markdown files with zero configuration.** 
-• Drop `.md` files in `documents/` folder and they appear in a web dropdown selector
-• Built with vanilla JavaScript and markdown-it for fast, static hosting compatibility  
-• Includes build system with file watching for seamless development workflow
-• Modern responsive UI with rich markdown rendering (tables, code blocks, typography)
+**A dynamic markdown document viewer that automatically discovers and renders markdown files with zero configuration.** Drop `.md` files in the `documents/` folder and they instantly appear in a web dropdown selector. Built with vanilla JavaScript and markdown-it for fast, static hosting compatibility. Features dual-mode viewing (rendered HTML + raw markdown), modern responsive UI, and build system with file watching for seamless development workflow.
 
-*For detailed technical context, see [`context.md`](context.md)*
+*For detailed technical context and AI-friendly documentation, see [`context.md`](context.md)*
 
 ---
-
-A dynamic markdown document viewer that automatically discovers and lists markdown files from a documents folder.
 
 ## Features
 
 - 📄 **Dynamic File Discovery**: Automatically scans the `documents/` folder for markdown files
-- 🔄 **Build System**: Uses npm scripts to generate file listings
+- 🔄 **Build System**: Uses npm scripts to generate file listings with metadata
 - 👀 **File Watching**: Development mode with automatic rebuilds
-- 🎨 **Modern UI**: Clean, responsive design with dropdown file selection
-- ⚡ **Fast Rendering**: Powered by markdown-it
+- 🎨 **Dual-Mode Viewing**: Toggle between rendered HTML and raw markdown
+- 🎨 **Modern UI**: Clean, responsive design with gradient styling
+- ⚡ **Fast Rendering**: Powered by markdown-it with full feature support
 
 ## Quick Start
 

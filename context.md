@@ -2,17 +2,18 @@
 
 ## Overview
 
-MDMindMap is a **dynamic markdown document viewer** that automatically discovers and renders markdown files from a `documents/` folder. It provides a clean web interface for browsing and viewing markdown content without requiring manual file list maintenance.
+MDMindMap is a **dynamic markdown document viewer** that automatically discovers and renders markdown files from a `documents/` folder. It provides a clean web interface with dual-mode viewing (rendered HTML + raw markdown) for browsing and viewing markdown content without requiring manual file list maintenance.
 
-**Key Value**: Eliminates the need to hardcode file lists while maintaining static hosting compatibility through a build system that generates JSON metadata.
+**Key Value**: Zero-configuration markdown viewing with automatic file discovery, modern responsive UI, and build system that maintains static hosting compatibility through JSON metadata generation.
 
 ## Tech Stack
 
-- **Frontend**: Vanilla HTML/CSS/JavaScript (no framework dependencies)
-- **Markdown Rendering**: [markdown-it](https://github.com/markdown-it/markdown-it) (CDN)
-- **Build System**: Node.js scripts with file watching
-- **Development Server**: Python HTTP server
-- **File Watching**: chokidar library
+- **Frontend**: Vanilla HTML/CSS/JavaScript (554 lines, no framework dependencies)
+- **Markdown Rendering**: [markdown-it](https://github.com/markdown-it/markdown-it) v14.0.0 (CDN)
+- **Build System**: Node.js scripts with file watching (generateFileList.js: 71 lines, watch.js: 68 lines)
+- **Development Server**: Python HTTP server (port 8000)
+- **File Watching**: chokidar v3.5.3 library
+- **UI Features**: Responsive design, dual-mode viewing (HTML/raw markdown), gradient styling
 
 ## Architecture
 
@@ -50,18 +51,19 @@ const markdownFiles = files
 ```
 
 ### 2. Dynamic File Loading
-**Location**: `index.html` (lines 293-348)
+**Location**: `index.html` (lines 378-433)
 ```javascript
 async function loadFileList() {
     const response = await fetch('markdownFiles.json');
     const fileData = await response.json();
     markdownFiles = fileData.files;
     // Populate dropdown with file options
+    // Auto-select first file if available
 }
 ```
 
-### 3. Markdown Rendering
-**Location**: `index.html` (lines 350-394)
+### 3. Markdown Rendering & Dual-Mode Viewing
+**Location**: `index.html` (lines 364-371, 435-537)
 ```javascript
 const md = window.markdownit({
     html: true, linkify: true, typographer: true
@@ -70,8 +72,13 @@ const md = window.markdownit({
 async function loadMarkdownFile(filename) {
     const response = await fetch(`documents/${filename}`);
     const markdownText = await response.text();
-    const html = md.render(markdownText);
-    contentEl.innerHTML = html;
+    currentMarkdownText = markdownText; // Store for dual-mode
+    renderCurrentView(); // Render based on current view mode
+}
+
+function toggleView() {
+    isMarkdownView = !isMarkdownView;
+    renderCurrentView(); // Switch between HTML and raw markdown
 }
 ```
 
@@ -95,9 +102,9 @@ mdmindmap/
 ├── scripts/
 │   ├── generateFileList.js # Build script (71 lines)
 │   └── watch.js           # File watcher (68 lines)
-├── index.html             # Main application (414 lines)
+├── index.html             # Main application (554 lines)
 ├── markdownFiles.json     # Generated file list (auto-created)
-└── package.json           # Build configuration
+└── package.json           # Build configuration (26 lines)
 ```
 
 ## Code Flow
@@ -111,10 +118,12 @@ mdmindmap/
 
 - **Zero Configuration**: Drop markdown files in `documents/` folder
 - **Auto-Discovery**: Build system automatically finds all `.md` files
+- **Dual-Mode Viewing**: Toggle between rendered HTML and raw markdown code
 - **Static Hosting Compatible**: No server-side processing required
-- **Responsive UI**: Modern CSS with mobile-friendly design
+- **Modern Responsive UI**: Gradient design, mobile-friendly with view controls
 - **Development Workflow**: File watching with auto-rebuild
-- **Rich Markdown Support**: Full markdown-it feature set (tables, code blocks, links)
+- **Rich Markdown Support**: Full markdown-it feature set (tables, code blocks, links, typography)
+- **File Metadata**: Shows file sizes and modification dates in dropdown
 
 ## Development Commands
 
@@ -127,7 +136,25 @@ npm run serve    # Start server without building
 
 ## Extension Points
 
-- **Styling**: Modify CSS in `index.html` (lines 8-250)
-- **Markdown Config**: Adjust markdown-it options (lines 281-288)
-- **File Filtering**: Modify extensions in `generateFileList.js` (lines 26-28)
-- **UI Components**: Add features to file selector (lines 199-236)
+- **Styling**: Modify CSS in `index.html` (lines 8-324)
+- **Markdown Config**: Adjust markdown-it options (lines 364-371)
+- **File Filtering**: Modify extensions in `generateFileList.js` (lines 25-28)
+- **UI Components**: Add features to file selector (lines 199-247)
+- **View Modes**: Extend dual-mode functionality (lines 492-537)
+- **File Processing**: Enhance metadata generation (lines 32-42 in generateFileList.js)
+
+## Quick Reference for AI Code Generation
+
+### Common Tasks:
+- **Add new markdown file**: Drop in `documents/` → run `npm run build`
+- **Modify UI styling**: Edit CSS in `index.html` lines 8-324
+- **Change markdown rendering**: Update markdown-it config lines 364-371
+- **Add file processing**: Modify `generateFileList.js` lines 32-42
+- **Extend view modes**: Work with functions at lines 492-537 in `index.html`
+
+### Key Files:
+- `index.html` (554 lines): Main app, UI, rendering logic
+- `scripts/generateFileList.js` (71 lines): Build system, file discovery
+- `scripts/watch.js` (68 lines): Development file watcher
+- `documents/`: Content folder (user-managed)
+- `markdownFiles.json`: Generated file metadata (auto-created)
