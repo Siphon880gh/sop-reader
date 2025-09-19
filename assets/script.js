@@ -13,6 +13,110 @@ let markdownFiles = [];
 let currentMarkdownText = '';
 let isMarkdownView = false;
 let currentTocData = [];
+let currentMindmapData = null;
+
+// Initialize Mermaid
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    themeVariables: {
+        primaryColor: '#667eea',
+        primaryTextColor: '#333',
+        primaryBorderColor: '#667eea',
+        lineColor: '#666'
+    }
+});
+
+// Mindmap detection and parsing functions
+function detectMindmapContent() {
+    const contentEl = document.getElementById('markdown-content');
+    if (!contentEl || isMarkdownView) {
+        return false;
+    }
+    
+    // Look for images with src containing "1x1.png" or ending with "1x1.png"
+    const mindmapImages = contentEl.querySelectorAll('img[src*="1x1.png"], img[src$="1x1.png"]');
+    return mindmapImages.length > 0;
+}
+
+function traverseList(ul) {
+    let nodes = [];
+    
+    // Get direct children li elements only
+    const directLiChildren = Array.from(ul.children).filter(child => child.tagName === 'LI');
+    
+    for (const li of directLiChildren) {
+        // Find first 1x1 image and get its alt text
+        let img = li.querySelector('img[src*="1x1"], img[src$="1x1.png"]');
+        let label = img ? img.alt.trim() : '';
+        
+        // Skip if no mindmap image found
+        if (!label) {
+            continue;
+        }
+        
+        // Check for nested ul (direct child only)
+        let childList = li.querySelector(':scope > ul');
+        let children = childList ? traverseList(childList) : [];
+        
+        nodes.push({ label, children });
+    }
+    
+    return nodes;
+}
+
+function treeToMermaid(node, indent = 1) {
+    // Escape special characters in labels for Mermaid
+    const escapedLabel = node.label.replace(/[()]/g, '');
+    let s = '  '.repeat(indent) + escapedLabel + '\n';
+    
+    for (const child of node.children) {
+        s += treeToMermaid(child, indent + 1);
+    }
+    
+    return s;
+}
+
+function generateMindmapFromLists() {
+    const contentEl = document.getElementById('markdown-content');
+    if (!contentEl || isMarkdownView) {
+        return null;
+    }
+    
+    // Find all ul elements that contain mindmap images
+    const allLists = contentEl.querySelectorAll('ul');
+    let mindmapTree = [];
+    
+    for (const ul of allLists) {
+        // Check if this ul or its descendants contain mindmap images
+        const hasImages = ul.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0;
+        
+        if (hasImages) {
+            // Check if this ul is not nested inside another ul with mindmap images
+            const parentUl = ul.closest('ul:not(:scope)');
+            const parentHasImages = parentUl ? parentUl.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0 : false;
+            
+            if (!parentHasImages) {
+                // This is a root-level mindmap list
+                const nodes = traverseList(ul);
+                mindmapTree.push(...nodes);
+            }
+        }
+    }
+    
+    if (mindmapTree.length === 0) {
+        return null;
+    }
+    
+    // Generate Mermaid mindmap syntax
+    let mermaid = "mindmap\n  root)Mindmap(\n";
+    
+    for (const node of mindmapTree) {
+        mermaid += treeToMermaid(node, 2);
+    }
+    
+    return mermaid;
+}
 
 async function loadFileList() {
     const fileSelect = document.getElementById('file-select');
@@ -160,6 +264,8 @@ function renderCurrentView() {
     
     if (!currentMarkdownText) {
         contentEl.innerHTML = '';
+        currentMindmapData = null;
+        updateMindmapButton();
         return;
     }
     
@@ -167,9 +273,11 @@ function renderCurrentView() {
         // Show raw markdown
         contentEl.className = 'raw-markdown';
         contentEl.textContent = currentMarkdownText;
-        // Clear TOC for raw markdown view
+        // Clear TOC and mindmap for raw markdown view
         currentTocData = [];
+        currentMindmapData = null;
         updateTableOfContents();
+        updateMindmapButton();
     } else {
         // Show rendered HTML
         contentEl.className = '';
@@ -178,6 +286,10 @@ function renderCurrentView() {
         
         // Generate table of contents after rendering
         generateTableOfContents();
+        
+        // Clear previous mindmap data and update button visibility
+        currentMindmapData = null;
+        updateMindmapButton();
     }
 }
 
@@ -294,6 +406,79 @@ function closeTocPanel() {
     tocPanel.classList.remove('visible');
 }
 
+// Mindmap panel management functions
+function updateMindmapButton() {
+    const mindmapButton = document.getElementById('mindmap-button');
+    const hasMindmap = detectMindmapContent();
+    
+    if (hasMindmap && !isMarkdownView) {
+        mindmapButton.style.display = 'flex';
+    } else {
+        mindmapButton.style.display = 'none';
+        // Close mindmap panel if open
+        closeMindmapPanel();
+    }
+}
+
+function generateMindmap() {
+    const mindmapData = generateMindmapFromLists();
+    currentMindmapData = mindmapData;
+    updateMindmapDisplay();
+}
+
+async function updateMindmapDisplay() {
+    const mindmapContent = document.getElementById('mindmap-content');
+    
+    if (!currentMindmapData) {
+        mindmapContent.innerHTML = '<div class="mindmap-empty">No mindmap available for this document.</div>';
+        return;
+    }
+    
+    try {
+        // Create a unique ID for this mindmap
+        const mindmapId = 'mindmap-' + Date.now();
+        
+        // Create container for the mindmap
+        mindmapContent.innerHTML = `<div id="${mindmapId}" class="mindmap-diagram"></div>`;
+        
+        // Render the mindmap using Mermaid
+        const { svg } = await mermaid.render(mindmapId + '-svg', currentMindmapData);
+        document.getElementById(mindmapId).innerHTML = svg;
+        
+    } catch (error) {
+        console.error('Error rendering mindmap:', error);
+        mindmapContent.innerHTML = `
+            <div class="mindmap-empty">
+                Error rendering mindmap: ${error.message}
+                <br><br>
+                <details>
+                    <summary>Debug Info</summary>
+                    <pre>${currentMindmapData}</pre>
+                </details>
+            </div>
+        `;
+    }
+}
+
+// Toggle mindmap panel visibility
+function toggleMindmapPanel() {
+    const mindmapPanel = document.getElementById('mindmap-panel');
+    const isVisible = mindmapPanel.classList.contains('visible');
+    
+    if (!isVisible && !currentMindmapData) {
+        // Generate mindmap if not already generated
+        generateMindmap();
+    }
+    
+    mindmapPanel.classList.toggle('visible');
+}
+
+// Close mindmap panel
+function closeMindmapPanel() {
+    const mindmapPanel = document.getElementById('mindmap-panel');
+    mindmapPanel.classList.remove('visible');
+}
+
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     loadFileList();
@@ -314,17 +499,29 @@ document.addEventListener('DOMContentLoaded', function() {
     tocButton.addEventListener('click', toggleTocPanel);
     tocCloseButton.addEventListener('click', closeTocPanel);
     
-    // Close TOC panel when clicking outside
+    // Add event listeners for mindmap
+    const mindmapButton = document.getElementById('mindmap-button');
+    const mindmapCloseButton = document.getElementById('mindmap-close');
+    const mindmapPanel = document.getElementById('mindmap-panel');
+    
+    mindmapButton.addEventListener('click', toggleMindmapPanel);
+    mindmapCloseButton.addEventListener('click', closeMindmapPanel);
+    
+    // Close panels when clicking outside
     document.addEventListener('click', function(e) {
         if (!tocPanel.contains(e.target) && !tocButton.contains(e.target)) {
             closeTocPanel();
         }
+        if (!mindmapPanel.contains(e.target) && !mindmapButton.contains(e.target)) {
+            closeMindmapPanel();
+        }
     });
     
-    // Close TOC panel on escape key
+    // Close panels on escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeTocPanel();
+            closeMindmapPanel();
         }
     });
 });
