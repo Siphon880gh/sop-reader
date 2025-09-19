@@ -7,7 +7,7 @@ The link popover preview feature provides hover-based content previews for exter
 ## Core Components
 
 ### 1. Popover Detection
-**Location**: `assets/script.js` (lines 235-264)
+**Location**: `assets/popover.js` (lines 7-37)
 ```javascript
 function enhanceLinksWithPopovers() {
     const contentEl = document.getElementById('markdown-content');
@@ -38,7 +38,7 @@ function enhanceLinksWithPopovers() {
 ```
 
 ### 2. Hover Interaction Management
-**Location**: `assets/script.js` (lines 266-338)
+**Location**: `assets/popover.js` (lines 39-111)
 ```javascript
 function setupPopoverForLink(link, startWord, endWord) {
     let popover = null;
@@ -64,7 +64,7 @@ function setupPopoverForLink(link, startWord, endWord) {
 ```
 
 ### 3. Content Fetching & Text Extraction
-**Location**: `assets/script.js` (lines 362-430)
+**Location**: `assets/popover.js` (lines 135-203)
 ```javascript
 async function fetchPopoverContent(url, startWord, endWord, popover) {
     // Check cache first
@@ -119,7 +119,7 @@ function extractTextBetweenWords(htmlContent, startWord, endWord) {
 ```
 
 ### 4. Popover UI & Positioning
-**Location**: `assets/script.js` (lines 340-361, 432-457)
+**Location**: `assets/popover.js` (lines 113-133, 205-224)
 ```javascript
 function positionPopover(popover, linkElement) {
     const linkRect = linkElement.getBoundingClientRect();
@@ -170,7 +170,7 @@ function displayPopoverContent(popover, content) {
 
 ## Styling
 
-**Location**: `assets/style.css` (lines 468-598)
+**Location**: `assets/popover.css` (lines 1-93)
 
 ### Key Style Classes:
 - `.link-popover` - Main popover container with fade-in animation

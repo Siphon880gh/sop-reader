@@ -17,11 +17,13 @@ For detailed technical context on specific features, refer to:
 ## Tech Stack
 
 - **Frontend**: Vanilla HTML/CSS/JavaScript (no framework dependencies)
-  - `index.html` (129 lines): Main HTML structure with TOC, mindmap components, and full-screen modal
-  - `assets/style.css` (603 lines): Base responsive styling with gradient design and popover styling
+  - `index.html` (130 lines): Main HTML structure with TOC, mindmap components, and full-screen modal
+  - `assets/style.css` (485 lines): Base responsive styling with gradient design
   - `assets/mindmap.css` (409 lines): Dedicated mindmap panel, button styling, zoom controls, and full-screen modal
-  - `assets/script.js` (796 lines): Core application logic, markdown rendering, UI controls, TOC functionality, and popover previews
+  - `assets/popover.css` (93 lines): Dedicated popover styling with animations and responsive design
+  - `assets/script.js` (569 lines): Core application logic, markdown rendering, UI controls, and TOC functionality
   - `assets/mindmap.js` (815 lines): Dedicated mindmap detection, generation, Mermaid.js integration, zoom controls, and color styling
+  - `assets/popover.js` (224 lines): Dedicated popover functionality for link previews with content fetching and text extraction
 - **Configuration**: JSON-based configuration system
   - `config.json` (5 lines): Application configuration for mindmap types and other settings
 - **Markdown Rendering**: [markdown-it](https://github.com/markdown-it/markdown-it) v14.0.0 (CDN)
@@ -130,7 +132,7 @@ async function loadConfig() {
 ```
 
 ### 5. Link Popover Previews
-**Location**: `assets/script.js` (lines 235-457)
+**Location**: `assets/popover.js` (lines 7-37)
 ```javascript
 function enhanceLinksWithPopovers() {
     const links = contentEl.querySelectorAll('a[href]');
@@ -164,10 +166,12 @@ function enhanceLinksWithPopovers() {
 ```
 mdmindmap/
 ├── assets/
-│   ├── script.js          # Core application logic, markdown rendering, UI controls, popover previews (796 lines)
+│   ├── script.js          # Core application logic, markdown rendering, UI controls, and TOC functionality (567 lines)
 │   ├── mindmap.js         # Dedicated mindmap detection, generation, and Mermaid.js integration (815 lines)
-│   ├── style.css          # Base responsive styling with gradient design and popover styling (603 lines)
-│   └── mindmap.css        # Dedicated mindmap panel, zoom controls, and full-screen modal (409 lines)
+│   ├── popover.js         # Dedicated popover functionality for link previews with content fetching and text extraction (232 lines)
+│   ├── style.css          # Base responsive styling with gradient design (484 lines)
+│   ├── mindmap.css        # Dedicated mindmap panel, zoom controls, and full-screen modal (409 lines)
+│   └── popover.css        # Dedicated popover styling with animations and responsive design (136 lines)
 ├── documents/             # Markdown content source
 │   ├── doc.md            # Example document
 │   ├── sample.md         # Sample content
@@ -180,10 +184,12 @@ mdmindmap/
 │   ├── generateFileList.js # Build script (70 lines)
 │   └── watch.js          # File watcher (67 lines)
 ├── config.json           # Application configuration for mindmap types and settings (6 lines)
-├── index.html            # Main HTML structure with TOC, mindmap components, and full-screen modal (129 lines)
+├── index.html            # Main HTML structure with TOC, mindmap components, and full-screen modal (130 lines)
 ├── markdownFiles.json    # Generated file list (auto-created)
 ├── package.json          # Build configuration (25 lines)
-└── context.md            # This documentation file
+├── context.md            # This documentation file
+├── POPOVER_INTEGRATION_PROMPT.md    # AI prompt for adding popover functionality to other apps
+└── POPOVER_INTEGRATION_README.md    # Complete integration guide with code snippets
 ```
 
 ## Code Flow
@@ -225,11 +231,13 @@ npm run serve    # Start server without building
 ## Quick Reference for AI Code Generation
 
 ### Key Files:
-- `assets/script.js` (796 lines): Core application logic, markdown rendering, UI controls, TOC functionality, and popover previews
-- `assets/mindmap.js` (815 lines): Dedicated mindmap detection, generation, Mermaid.js integration, zoom controls, and color styling
-- `assets/style.css` (603 lines): Base responsive styling with gradient design and popover styling
-- `assets/mindmap.css` (409 lines): Dedicated mindmap panel, button styling, zoom controls, and full-screen modal
-- `index.html` (129 lines): HTML structure, layout, TOC components, mindmap components, and full-screen modal
+  - `assets/script.js` (567 lines): Core application logic, markdown rendering, UI controls, and TOC functionality
+  - `assets/mindmap.js` (815 lines): Dedicated mindmap detection, generation, Mermaid.js integration, zoom controls, and color styling
+  - `assets/popover.js` (232 lines): Dedicated popover functionality for link previews with content fetching and text extraction
+  - `assets/style.css` (484 lines): Base responsive styling with gradient design
+  - `assets/mindmap.css` (409 lines): Dedicated mindmap panel, button styling, zoom controls, and full-screen modal
+  - `assets/popover.css` (136 lines): Dedicated popover styling with animations and responsive design
+- `index.html` (130 lines): HTML structure, layout, TOC components, mindmap components, and full-screen modal
 - `config.json` (6 lines): Application configuration for mindmap types and other settings
 - `scripts/generateFileList.js` (71 lines): Build system, file discovery
 - `documents/`: Content folder (user-managed)
@@ -240,11 +248,13 @@ npm run serve    # Start server without building
 - **Create mindmap**: Add markdown list with `![Node Label](img/1x1.png)` images → mindmap auto-detects and prerenders
 - **Create popover preview**: Add link followed by `![startWord..endWord](../1x2.png)` or `![startWord...endWord](../1x2.png)` → popover auto-detects and enhances link
 - **Change mindmap layout**: Edit `config.json` - set `mindmap.type` to "spider", "tree", "tree-down", or "tree-right"
-- **Modify base styling**: Edit `assets/style.css` for general UI changes and popover styling
+- **Modify base styling**: Edit `assets/style.css` for general UI changes
 - **Modify mindmap styling**: Edit `assets/mindmap.css` for mindmap-specific appearance, zoom controls, and full-screen modal
+- **Modify popover styling**: Edit `assets/popover.css` for popover appearance, animations, and responsive design
 - **Extend mindmap functionality**: Edit `assets/mindmap.js` for detection, generation, rendering logic, zoom controls, or color styling
-- **Extend popover functionality**: Edit `assets/script.js` popover functions for content fetching, text extraction, or UI behavior
+- **Extend popover functionality**: Edit `assets/popover.js` for content fetching, text extraction, or UI behavior
 - **Extend core functionality**: Edit `assets/script.js` for UI controls, file handling, or TOC features
+- **Integrate popover into other apps**: Use `POPOVER_INTEGRATION_PROMPT.md` with AI assistants or follow `POPOVER_INTEGRATION_README.md` for manual integration
 - **Extend functionality**: Refer to feature-specific context files for detailed implementation guides
 
 ### Mindmap Creation Pattern:

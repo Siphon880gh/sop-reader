@@ -1,0 +1,136 @@
+/* Link Popover Preview Styles */
+/* Provides styling for hover-based content previews with smooth animations and responsive design */
+
+/* Main popover container */
+.link-popover {
+	position: fixed;
+	width: 300px;
+	max-width: 90vw;
+	background: white;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	z-index: 10000;
+	font-size: 14px;
+	line-height: 1.4;
+	animation: popoverFadeIn 0.2s ease-out;
+}
+
+/* Fade-in animation for smooth appearance */
+@keyframes popoverFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Content wrapper */
+.popover-content {
+	padding: 12px;
+}
+
+/* Loading state with spinner */
+.popover-loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #666;
+	font-style: italic;
+}
+
+.popover-loading i {
+	color: #667eea;
+}
+
+/* Error state styling */
+.popover-error {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #dc3545;
+	font-size: 13px;
+}
+
+.popover-error i {
+	color: #dc3545;
+}
+
+/* Boundary words header */
+.popover-boundary {
+	font-size: 12px;
+	color: #666;
+	margin-bottom: 8px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid #eee;
+}
+
+.popover-boundary strong {
+	color: #667eea;
+	font-weight: 600;
+}
+
+/* Main content area */
+.popover-excerpt {
+	color: #333;
+	max-height: 150px;
+	overflow-y: auto;
+	text-align: justify;
+}
+
+/* Custom scrollbar for content area */
+.popover-excerpt::-webkit-scrollbar {
+	width: 4px;
+}
+
+.popover-excerpt::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 2px;
+}
+
+.popover-excerpt::-webkit-scrollbar-thumb {
+	background: #ccc;
+	border-radius: 2px;
+}
+
+.popover-excerpt::-webkit-scrollbar-thumb:hover {
+	background: #999;
+}
+
+/* Enhanced link styling for links with popovers */
+a[data-has-popover] {
+	position: relative;
+	border-bottom: 2px dotted #667eea;
+	text-decoration: none;
+}
+
+a[data-has-popover]:hover {
+	border-bottom-style: solid;
+}
+
+/* Hide popover marker images */
+img[src*="1x2"], img[src$="1x2.png"] {
+	display: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+	/* Smaller popover for mobile devices */
+	.link-popover {
+		width: 280px;
+		font-size: 13px;
+	}
+	
+	/* Reduced padding for mobile */
+	.popover-content {
+		padding: 10px;
+	}
+	
+	/* Adjust content area height for mobile */
+	.popover-excerpt {
+		max-height: 120px;
+	}
+}
