@@ -76,18 +76,19 @@ function generateMindmapFromLists() {
 
 ## Configuration
 
+The `config.json` controls the mindmap visualization style.
+
+You can set the type of mindmap that gets rendered:
+- "spider": "Radial mindmap with central root node (default)",
+- "tree": "Hierarchical tree layout with top-down structure",
+- "tree-down": "Hierarchical tree layout with top-down structure (same as tree)",
+- "tree-right": "Hierarchical tree layout with left-to-right structure"
+
 **File**: `config.json` (13 lines)
 ```json
 {
   "mindmap": {
     "type": "spider",  // "spider", "tree", "tree-down", or "tree-right"
-    "description": "Controls the mindmap visualization style",
-    "options": {
-      "spider": "Radial mindmap with central root node (default)",
-      "tree": "Hierarchical tree layout with top-down structure",
-      "tree-down": "Hierarchical tree layout with top-down structure (same as tree)",
-      "tree-right": "Hierarchical tree layout with left-to-right structure"
-    }
   }
 }
 ```
