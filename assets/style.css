@@ -687,3 +687,8 @@ body {
 .mindmap-diagram svg tspan {
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* Mindmap image hidden */
+img[src*="1x1"], img[src$="1x1.png"] {
+	display: none;
+}
