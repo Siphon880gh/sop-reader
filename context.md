@@ -16,22 +16,22 @@ For detailed technical context on specific features, refer to:
 ## Tech Stack
 
 - **Frontend**: Vanilla HTML/CSS/JavaScript (no framework dependencies)
-  - `index.html` (89 lines): Main HTML structure with TOC and mindmap components
-  - `assets/style.css` (486 lines): Base responsive styling with gradient design
-  - `assets/mindmap.css` (226 lines): Dedicated mindmap panel and button styling
-  - `assets/script.js` (466 lines): Core application logic, markdown rendering, UI controls, TOC functionality
-  - `assets/mindmap.js` (619 lines): Dedicated mindmap detection, generation, and Mermaid.js integration
+  - `index.html` (128 lines): Main HTML structure with TOC, mindmap components, and full-screen modal
+  - `assets/style.css` (485 lines): Base responsive styling with gradient design
+  - `assets/mindmap.css` (408 lines): Dedicated mindmap panel, button styling, zoom controls, and full-screen modal
+  - `assets/script.js` (564 lines): Core application logic, markdown rendering, UI controls, TOC functionality
+  - `assets/mindmap.js` (814 lines): Dedicated mindmap detection, generation, Mermaid.js integration, zoom controls, and color styling
 - **Configuration**: JSON-based configuration system
-  - `config.json` (6 lines): Application configuration for mindmap types and other settings
+  - `config.json` (5 lines): Application configuration for mindmap types and other settings
 - **Markdown Rendering**: [markdown-it](https://github.com/markdown-it/markdown-it) v14.0.0 (CDN)
 - **Mindmap Visualization**: [Mermaid.js](https://mermaid.js.org/) v10.6.1 (CDN) for dynamic mindmap generation with configurable layout types
 - **Icons**: Font Awesome 6.4.0 (CDN) for UI icons
 - **Build System**: Node.js scripts with file watching
-  - `scripts/generateFileList.js` (71 lines): File discovery and metadata generation
-  - `scripts/watch.js`: Development file watcher with chokidar
+  - `scripts/generateFileList.js` (70 lines): File discovery and metadata generation
+  - `scripts/watch.js` (67 lines): Development file watcher with chokidar
 - **Development Server**: Python HTTP server (port 8000)
 - **File Watching**: chokidar v3.5.3 library
-- **UI Features**: Responsive design, dual-mode viewing (HTML/raw markdown), gradient styling, interactive table of contents with smooth scrolling, **configurable mindmap generation with spider/tree layouts from markdown lists with 1x1.png placeholder images**
+- **UI Features**: Responsive design, dual-mode viewing (HTML/raw markdown), gradient styling, interactive table of contents with smooth scrolling, **configurable mindmap generation with spider/tree layouts, zoom controls, full-screen mode, and branch coloring from markdown lists with 1x1.png placeholder images**
 
 ## Architecture
 
@@ -138,23 +138,23 @@ async function loadConfig() {
 ```
 mdmindmap/
 ├── assets/
-│   ├── script.js          # Core application logic, markdown rendering, UI controls (466 lines)
-│   ├── mindmap.js         # Dedicated mindmap detection, generation, and Mermaid.js integration (619 lines)
-│   ├── style.css          # Base responsive styling with gradient design (486 lines)
-│   └── mindmap.css        # Dedicated mindmap panel and button styling (226 lines)
+│   ├── script.js          # Core application logic, markdown rendering, UI controls (564 lines)
+│   ├── mindmap.js         # Dedicated mindmap detection, generation, and Mermaid.js integration (814 lines)
+│   ├── style.css          # Base responsive styling with gradient design (485 lines)
+│   └── mindmap.css        # Dedicated mindmap panel, zoom controls, and full-screen modal (408 lines)
 ├── documents/             # Markdown content source
 │   ├── doc.md            # Example document
 │   ├── sample.md         # Sample content
-│   ├── mindmap-test.md   # Mindmap demonstration document (54 lines)
+│   ├── mindmap-test.md   # Mindmap demonstration document (53 lines)
 │   └── img/              # Image assets for mindmaps
 │       └── 1x1.png       # Placeholder image for mindmap node detection
 ├── scripts/
-│   ├── generateFileList.js # Build script (71 lines)
-│   └── watch.js          # File watcher
-├── config.json           # Application configuration for mindmap types and settings (6 lines)
-├── index.html            # Main HTML structure with TOC and mindmap components (89 lines)
+│   ├── generateFileList.js # Build script (70 lines)
+│   └── watch.js          # File watcher (67 lines)
+├── config.json           # Application configuration for mindmap types and settings (5 lines)
+├── index.html            # Main HTML structure with TOC, mindmap components, and full-screen modal (128 lines)
 ├── markdownFiles.json    # Generated file list (auto-created)
-├── package.json          # Build configuration (26 lines)
+├── package.json          # Build configuration (25 lines)
 └── context.md            # This documentation file
 ```
 
@@ -164,7 +164,7 @@ mdmindmap/
 2. **Load Phase**: Browser loads `index.html` + `assets/script.js` + `assets/mindmap.js` → `loadConfig()` fetches `config.json` → fetches `markdownFiles.json` → populates file dropdown
 3. **View Phase**: User selects file → `loadMarkdownFile()` fetches from `documents/` → markdown-it renders → displays HTML → generates TOC → detects mindmap content → prerenders mindmap for instant access
 4. **Navigation**: User clicks TOC button → floating panel appears → clicking headings scrolls smoothly to sections
-5. **Mindmap Generation**: If 1x1.png images detected in lists → mindmap button appears → user clicks → prerendered mindmap displays instantly or `generateMindmapFromLists()` checks config for layout type → Mermaid.js renders spider/tree SVG mindmap with color styling
+5. **Mindmap Generation**: If 1x1.png images detected in lists → mindmap button appears → user clicks → prerendered mindmap displays instantly with zoom controls and full-screen option → `generateMindmapFromLists()` checks config for layout type → Mermaid.js renders spider/tree SVG mindmap with branch color styling using golden-angle palette
 6. **Development**: `npm run watch` monitors `documents/` → auto-rebuilds on file changes
 
 ## Key Features
@@ -173,15 +173,15 @@ mdmindmap/
 - **Auto-Discovery**: Build system automatically finds all `.md` files
 - **Dual-Mode Viewing**: Toggle between rendered HTML and raw markdown code
 - **Interactive Table of Contents**: Floating TOC panel with smooth scroll navigation and hierarchical heading structure
-- **Intelligent Mindmap Generation**: Automatically detects markdown lists with 1x1.png placeholder images and generates interactive Mermaid.js mindmaps with configurable layouts (spider/tree) and instant prerendering
+- **Intelligent Mindmap Generation**: Automatically detects markdown lists with 1x1.png placeholder images and generates interactive Mermaid.js mindmaps with configurable layouts (spider/tree), zoom controls, full-screen mode, and instant prerendering
 - **Dynamic UI Elements**: Contextual buttons (TOC always available, mindmap only when detected) with smooth animations
 - **Static Hosting Compatible**: No server-side processing required
-- **Modern Responsive UI**: Gradient design, mobile-friendly with view controls, responsive TOC and mindmap panels with dedicated CSS styling
+- **Modern Responsive UI**: Gradient design, mobile-friendly with view controls, responsive TOC and mindmap panels with zoom controls, full-screen modal, and dedicated CSS styling
 - **Development Workflow**: File watching with auto-rebuild
 - **Rich Markdown Support**: Full markdown-it feature set (tables, code blocks, links, typography)
 - **File Metadata**: Shows file sizes and modification dates in dropdown
 - **Accessibility Features**: Keyboard navigation (ESC to close panels), click outside to close, Font Awesome icons
-- **Performance Optimization**: Mindmap prerendering for instant display, CSS-based branch coloring with golden-angle palette
+- **Performance Optimization**: Mindmap prerendering for instant display, CSS-based branch coloring with golden-angle palette, zoom controls with smooth scaling
 
 ## Development Commands
 
@@ -195,13 +195,13 @@ npm run serve    # Start server without building
 ## Quick Reference for AI Code Generation
 
 ### Key Files:
-- `assets/script.js` (466 lines): Core application logic, markdown rendering, UI controls, TOC functionality
-- `assets/mindmap.js` (619 lines): Dedicated mindmap detection, generation, Mermaid.js integration, and color styling
-- `assets/style.css` (486 lines): Base responsive styling with gradient design
-- `assets/mindmap.css` (226 lines): Dedicated mindmap panel and button styling with animations
-- `index.html` (89 lines): HTML structure, layout, TOC components, and mindmap components
-- `config.json` (6 lines): Application configuration for mindmap types and other settings
-- `scripts/generateFileList.js` (71 lines): Build system, file discovery
+- `assets/script.js` (564 lines): Core application logic, markdown rendering, UI controls, TOC functionality
+- `assets/mindmap.js` (814 lines): Dedicated mindmap detection, generation, Mermaid.js integration, zoom controls, and color styling
+- `assets/style.css` (485 lines): Base responsive styling with gradient design
+- `assets/mindmap.css` (408 lines): Dedicated mindmap panel, button styling, zoom controls, and full-screen modal
+- `index.html` (128 lines): HTML structure, layout, TOC components, mindmap components, and full-screen modal
+- `config.json` (5 lines): Application configuration for mindmap types and other settings
+- `scripts/generateFileList.js` (70 lines): Build system, file discovery
 - `documents/`: Content folder (user-managed)
 - `markdownFiles.json`: Generated file metadata (auto-created)
 
@@ -210,8 +210,8 @@ npm run serve    # Start server without building
 - **Create mindmap**: Add markdown list with `![Node Label](img/1x1.png)` images → mindmap auto-detects and prerenders
 - **Change mindmap layout**: Edit `config.json` - set `mindmap.type` to "spider", "tree", "tree-down", or "tree-right"
 - **Modify base styling**: Edit `assets/style.css` for general UI changes
-- **Modify mindmap styling**: Edit `assets/mindmap.css` for mindmap-specific appearance
-- **Extend mindmap functionality**: Edit `assets/mindmap.js` for detection, generation, or rendering logic
+- **Modify mindmap styling**: Edit `assets/mindmap.css` for mindmap-specific appearance, zoom controls, and full-screen modal
+- **Extend mindmap functionality**: Edit `assets/mindmap.js` for detection, generation, rendering logic, zoom controls, or color styling
 - **Extend core functionality**: Edit `assets/script.js` for UI controls, file handling, or TOC features
 - **Extend functionality**: Refer to feature-specific context files for detailed implementation guides
 

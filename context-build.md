@@ -7,7 +7,7 @@ The build system provides automatic file discovery, metadata generation, and dev
 ## Core Components
 
 ### 1. File Discovery System
-**Location**: `scripts/generateFileList.js` (71 lines)
+**Location**: `scripts/generateFileList.js` (70 lines)
 ```javascript
 // Scans documents/ folder and generates metadata
 const markdownFiles = files
@@ -34,7 +34,7 @@ const output = {
 ```
 
 ### 2. File Watching System
-**Location**: `scripts/watch.js`
+**Location**: `scripts/watch.js` (67 lines)
 ```javascript
 const chokidar = require('chokidar');
 
@@ -46,7 +46,7 @@ chokidar.watch(documentsDir)
 ```
 
 ### 3. Dynamic File Loading
-**Location**: `assets/script.js` (lines 17-72)
+**Location**: `assets/script.js` (lines 53-104)
 ```javascript
 async function loadFileList() {
     try {
@@ -74,7 +74,7 @@ async function loadFileList() {
 ## Build Configuration
 
 ### Package.json Scripts
-**Location**: `package.json` (26 lines)
+**Location**: `package.json` (25 lines)
 ```json
 {
   "scripts": {
@@ -95,7 +95,7 @@ async function loadFileList() {
 ## Generated Output
 
 ### markdownFiles.json Structure
-**Location**: `markdownFiles.json` (auto-generated, 24 lines)
+**Location**: `markdownFiles.json` (auto-generated, 23 lines)
 ```json
 {
   "generated": "2025-09-19T05:23:03.016Z",
@@ -122,9 +122,9 @@ async function loadFileList() {
 ### Document Structure
 ```
 documents/
-├── doc.md              # Example document (309 lines)
-├── sample.md           # Sample content
-├── mindmap-test.md     # Mindmap demonstration (54 lines)
+├── doc.md              # Example document (308 lines)
+├── sample.md           # Sample content (29 lines)
+├── mindmap-test.md     # Mindmap demonstration (53 lines)
 └── img/                # Image assets
     └── 1x1.png         # Placeholder for mindmap detection
 ```
@@ -158,9 +158,9 @@ documents/
 ## Extension Points
 
 ### File Processing
-- **File Types**: Modify extensions in `generateFileList.js` (lines 25-28)
+- **File Types**: Modify extensions in `generateFileList.js` (filter logic around line 25)
 - **Metadata**: Add custom file properties (tags, categories)
-- **Sorting**: Change file ordering logic
+- **Sorting**: Change file ordering logic (around line 50)
 - **Filtering**: Add file exclusion patterns
 
 ### Build System
@@ -168,12 +168,14 @@ documents/
 - **Optimization**: Implement file minification or bundling
 - **Validation**: Add markdown linting or validation
 - **Deployment**: Add build steps for different environments
+- **Watch Improvements**: Enhance file watching with debouncing and error handling
 
 ### Development Tools
 - **Live Reload**: Implement browser auto-refresh
 - **Hot Module Replacement**: Add module hot-swapping
 - **Error Handling**: Enhance build error reporting
 - **Performance**: Add build time optimization
+- **Development Server**: Enhance Python server with custom features
 
 ## Static Hosting Compatibility
 
