@@ -692,3 +692,14 @@ body {
 img[src*="1x1"], img[src$="1x1.png"] {
 	display: none;
 }
+
+/* Mindmap spider edges */
+.edge-depth-0 {
+	filter: brightness(0.6) !important;
+}
+.edge-depth-1 {
+	filter: brightness(0.8) !important;
+}
+.edge-depth-2 {
+	filter: brightness(0.9) !important;
+}
