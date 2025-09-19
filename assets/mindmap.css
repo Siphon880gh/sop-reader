@@ -133,6 +133,7 @@
 	margin: 0 8px;
 }
 
+
 .mindmap-close {
 	background: none;
 	border: none;
@@ -205,6 +206,7 @@
 /* Force text visibility for all flowchart elements - backgrounds only, let JS handle text colors */
 .mindmap-diagram svg .flowchart-label {
 	/* Text colors handled by JavaScript CSS injection */
+	visibility: visible;
 }
 
 /* Spider mindmap root node styling - force pale blue background */
@@ -246,7 +248,7 @@ img[src*="1x1"], img[src$="1x1.png"] {
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background: rgba(0, 0, 0, 0.9);
+	background: rgba(255, 255, 255, 0.96);
 	z-index: 9999;
 	display: none;
 	flex-direction: column;

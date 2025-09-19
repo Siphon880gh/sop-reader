@@ -416,9 +416,76 @@ function closeTocPanel() {
 }
 
 
+// Cycle through mindmap types
+function cycleMindmapType() {
+    if (!appConfig) {
+        appConfig = { mindmap: { type: 'spider' } };
+    }
+    
+    const currentType = appConfig.mindmap.type || 'spider';
+    const types = ['spider', 'tree-down', 'tree-right'];
+    const currentIndex = types.indexOf(currentType);
+    const nextIndex = (currentIndex + 1) % types.length;
+    const nextType = types[nextIndex];
+    
+    // Update config
+    appConfig.mindmap.type = nextType;
+    
+    // Update button tooltip to show current type
+    updateCycleButtonTooltips(nextType);
+    
+    // Regenerate and update mindmap display
+    if (currentMindmapData || detectMindmapContent()) {
+        // Clear current mindmap data to force regeneration
+        clearMindmapData();
+        
+        // Generate new mindmap with updated type
+        generateMindmap();
+        
+        // Also update fullscreen if it's open
+        const fullScreenModal = document.getElementById('mindmap-fullscreen-modal');
+        if (fullScreenModal.classList.contains('visible')) {
+            // Update fullscreen content
+            const fullScreenContent = document.getElementById('mindmap-fullscreen-content');
+            const currentMindmapContent = document.getElementById('mindmap-content');
+            const mindmapDiagram = currentMindmapContent.querySelector('.mindmap-diagram');
+            
+            if (mindmapDiagram) {
+                const clonedDiagram = mindmapDiagram.cloneNode(true);
+                clonedDiagram.style.transform = ''; // Reset any zoom/transform
+                fullScreenContent.innerHTML = '';
+                fullScreenContent.appendChild(clonedDiagram);
+            }
+        }
+    }
+}
+
+// Update cycle button tooltips to show current type
+function updateCycleButtonTooltips(currentType) {
+    const typeDisplayNames = {
+        'spider': 'Spider',
+        'tree-down': 'Tree Down',
+        'tree-right': 'Tree Right'
+    };
+    
+    const displayName = typeDisplayNames[currentType] || currentType;
+    const tooltip = `Cycle Layout Type (Current: ${displayName})`;
+    
+    const cycleButton = document.getElementById('mindmap-cycle-type');
+    
+    if (cycleButton) {
+        cycleButton.title = tooltip;
+    }
+}
+
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', async function() {
     await loadConfig();
+    
+    // Initialize cycle button tooltips
+    const currentType = appConfig?.mindmap?.type || 'spider';
+    updateCycleButtonTooltips(currentType);
+    
     loadFileList();
     
     // Add event listener for file selection
@@ -443,6 +510,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const mindmapPanel = document.getElementById('mindmap-panel');
     
     // Mindmap panel controls
+    const mindmapCycleType = document.getElementById('mindmap-cycle-type');
     const mindmapZoomIn = document.getElementById('mindmap-zoom-in');
     const mindmapZoomOut = document.getElementById('mindmap-zoom-out');
     const mindmapZoomReset = document.getElementById('mindmap-zoom-reset');
@@ -458,7 +526,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     mindmapButton.addEventListener('click', toggleMindmapPanel);
     mindmapCloseButton.addEventListener('click', closeMindmapPanel);
     
-    // Mindmap panel zoom controls
+    // Mindmap panel controls
+    mindmapCycleType.addEventListener('click', cycleMindmapType);
     mindmapZoomIn.addEventListener('click', () => zoomIn(mindmapPanel));
     mindmapZoomOut.addEventListener('click', () => zoomOut(mindmapPanel));
     mindmapZoomReset.addEventListener('click', () => resetZoom(mindmapPanel));
