@@ -14,6 +14,7 @@ let currentMarkdownText = '';
 let isMarkdownView = false;
 let currentTocData = [];
 let currentMindmapData = null;
+let appConfig = null;
 
 // Initialize Mermaid
 mermaid.initialize({
@@ -77,6 +78,87 @@ function treeToMermaid(node, indent = 1) {
     return s;
 }
 
+function generateTreeMermaid(mindmapTree) {
+    // Generate Mermaid tree syntax (flowchart TD)
+    let mermaid = "flowchart TD\n";
+    let nodeId = 0;
+    const nodeMap = new Map();
+    let connections = [];
+    let rootNodeId = null;
+    
+    function addNode(node, parentId = null) {
+        const currentId = `N${nodeId++}`;
+        // Clean label for Mermaid compatibility
+        let cleanLabel = node.label
+            .replace(/[()[\]{}#]/g, '')
+            .replace(/"/g, '')
+            .replace(/'/g, '')
+            .replace(/&/g, 'and')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Ensure we have some text
+        if (!cleanLabel || cleanLabel.length === 0) {
+            cleanLabel = 'Node';
+        }
+        
+        // Truncate very long labels
+        if (cleanLabel.length > 30) {
+            cleanLabel = cleanLabel.substring(0, 27) + '...';
+        }
+        
+        nodeMap.set(currentId, cleanLabel);
+        
+        // Store root node ID for styling
+        if (parentId === null && rootNodeId === null) {
+            rootNodeId = currentId;
+        }
+        
+        // Add node definition - use simple rectangle format
+        mermaid += `    ${currentId}[${cleanLabel}]\n`;
+        
+        // Store connection for later
+        if (parentId !== null) {
+            connections.push(`    ${parentId} --> ${currentId}\n`);
+        }
+        
+        // Process children
+        for (const child of node.children) {
+            addNode(child, currentId);
+        }
+        
+        return currentId;
+    }
+    
+    // Create a virtual root if multiple top-level nodes
+    if (mindmapTree.length > 1) {
+        const virtualRootId = `N${nodeId++}`;
+        rootNodeId = virtualRootId;
+        mermaid += `    ${virtualRootId}[Mindmap]\n`;
+        
+        for (const node of mindmapTree) {
+            addNode(node, virtualRootId);
+        }
+    } else if (mindmapTree.length === 1) {
+        addNode(mindmapTree[0]);
+    }
+    
+    // Add all connections
+    for (const connection of connections) {
+        mermaid += connection;
+    }
+    
+    // Add styling with explicit node targeting
+    mermaid += `\n    classDef default fill:#ffffff,stroke:#667eea,stroke-width:2px,color:#333333\n`;
+    mermaid += `    classDef rootStyle fill:#667eea,stroke:#4c63d2,stroke-width:3px,color:#ffffff\n`;
+    
+    if (rootNodeId) {
+        mermaid += `    class ${rootNodeId} rootStyle\n`;
+    }
+    
+    return mermaid;
+}
+
 function generateMindmapFromLists() {
     const contentEl = document.getElementById('markdown-content');
     if (!contentEl || isMarkdownView) {
@@ -108,14 +190,37 @@ function generateMindmapFromLists() {
         return null;
     }
     
-    // Generate Mermaid mindmap syntax
-    let mermaid = "mindmap\n  root)Mindmap(\n";
+    // Check config for mindmap type, default to spider if not loaded
+    const mindmapType = appConfig?.mindmap?.type || 'spider';
     
-    for (const node of mindmapTree) {
-        mermaid += treeToMermaid(node, 2);
+    if (mindmapType === 'tree') {
+        return generateTreeMermaid(mindmapTree);
+    } else {
+        // Generate Mermaid spider mindmap syntax (default)
+        let mermaid = "mindmap\n  root)Mindmap(\n";
+        
+        for (const node of mindmapTree) {
+            mermaid += treeToMermaid(node, 2);
+        }
+        
+        return mermaid;
     }
-    
-    return mermaid;
+}
+
+async function loadConfig() {
+    try {
+        const response = await fetch('config.json');
+        if (response.ok) {
+            appConfig = await response.json();
+            console.log('Config loaded:', appConfig);
+        } else {
+            console.log('No config.json found, using defaults');
+            appConfig = { mindmap: { type: 'spider' } };
+        }
+    } catch (error) {
+        console.log('Error loading config, using defaults:', error);
+        appConfig = { mindmap: { type: 'spider' } };
+    }
 }
 
 async function loadFileList() {
@@ -441,6 +546,9 @@ async function updateMindmapDisplay() {
         // Create container for the mindmap
         mindmapContent.innerHTML = `<div id="${mindmapId}" class="mindmap-diagram"></div>`;
         
+        // Debug: Log the Mermaid syntax
+        console.log('Generated Mermaid syntax:', currentMindmapData);
+        
         // Render the mindmap using Mermaid
         const { svg } = await mermaid.render(mindmapId + '-svg', currentMindmapData);
         document.getElementById(mindmapId).innerHTML = svg;
@@ -480,7 +588,8 @@ function closeMindmapPanel() {
 }
 
 // Initialize when the page loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadConfig();
     loadFileList();
     
     // Add event listener for file selection

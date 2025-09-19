@@ -7,7 +7,7 @@ By Weng (Weng Fei Fung)
 <a target="_blank" href="https://www.linkedin.com/in/weng-fung/" rel="nofollow"><img src="https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin&labelColor=blue" alt="Linked-In" data-canonical-src="https://img.shields.io/badge/LinkedIn-blue?style=flat&amp;logo=linkedin&amp;labelColor=blue" style="max-width:10ch;"></a>
 <a target="_blank" href="https://www.youtube.com/@WayneTeachesCode/" rel="nofollow"><img src="https://img.shields.io/badge/Youtube-red?style=flat&logo=youtube&labelColor=red" alt="Youtube" data-canonical-src="https://img.shields.io/badge/Youtube-red?style=flat&amp;logo=youtube&amp;labelColor=red" style="max-width:10ch;"></a>
 
-**A dynamic markdown document viewer with intelligent mindmap generation that automatically discovers and renders markdown files with zero configuration.** Drop `.md` files in the `documents/` folder and they instantly appear in a web dropdown selector. Built with vanilla HTML/CSS/JavaScript, markdown-it, and Mermaid.js for fast, static hosting compatibility. Features dual-mode viewing (rendered HTML + raw markdown), interactive table of contents with smooth navigation, **automatic mindmap visualization from markdown lists**, modern responsive UI with gradient design, and automated build system with file watching for seamless development workflow.
+**A dynamic markdown document viewer with intelligent mindmap generation that automatically discovers and renders markdown files with zero configuration.** Drop `.md` files in the `documents/` folder and they instantly appear in a web dropdown selector. Built with vanilla HTML/CSS/JavaScript, markdown-it, and Mermaid.js for fast, static hosting compatibility. Features dual-mode viewing (rendered HTML + raw markdown), interactive table of contents with smooth navigation, **automatic mindmap visualization with configurable layouts (spider/tree) from markdown lists**, modern responsive UI with gradient design, and automated build system with file watching for seamless development workflow.
 
 *For detailed technical context and AI-friendly documentation, see [`context.md`](context.md)*
 
@@ -25,7 +25,7 @@ While it is an SOP reader for Markdown documents in a folder: It not only builds
 - 👀 **File Watching**: Development mode with automatic rebuilds
 - 🎨 **Dual-Mode Viewing**: Toggle between rendered HTML and raw markdown
 - 📋 **Interactive Table of Contents**: Floating TOC panel with smooth scroll navigation
-- 🧠 **Intelligent Mindmap Generation**: Automatically detects markdown lists with placeholder images and generates interactive Mermaid.js mindmaps
+- 🧠 **Intelligent Mindmap Generation**: Automatically detects markdown lists with placeholder images and generates interactive Mermaid.js mindmaps with configurable layout types (spider/tree)
 - 🎨 **Modern UI**: Clean, responsive design with gradient styling and contextual UI elements
 - ⚡ **Fast Rendering**: Powered by markdown-it with full feature support
 
@@ -50,6 +50,30 @@ While it is an SOP reader for Markdown documents in a folder: It not only builds
 
 5. **Open your browser** to `http://127.0.0.1:8000`
 
+## Configuration
+
+The application supports configuration through a `config.json` file in the root directory:
+
+```json
+{
+  "mindmap": {
+    "type": "spider",
+    "description": "Controls the mindmap visualization style",
+    "options": {
+      "spider": "Radial mindmap with central root node (default)",
+      "tree": "Hierarchical tree layout with top-down structure"
+    }
+  }
+}
+```
+
+### Mindmap Types
+
+- **Spider (default)**: Radial layout with nodes arranged around a central root
+- **Tree**: Hierarchical top-down tree structure
+
+To change the mindmap type, simply update the `type` field in `config.json` and refresh the page.
+
 ## Available Scripts
 
 - `npm run build` - Generate `markdownFiles.json` from files in `documents/`
@@ -70,6 +94,7 @@ mdmindmap/
 ├── scripts/
 │   ├── generateFileList.js  # Build script
 │   └── watch.js            # File watcher
+├── config.json         # Configuration file (mindmap types, etc.)
 ├── index.html          # Main HTML structure
 ├── markdownFiles.json  # Generated file list (auto-generated)
 └── package.json        # Build configuration

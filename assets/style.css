@@ -576,6 +576,58 @@ body {
 	min-height: 400px;
 }
 
+/* Enhanced styling for tree mindmap text visibility */
+.mindmap-diagram svg text {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+	font-size: 13px !important;
+	font-weight: 500 !important;
+	fill: #333333 !important;
+	text-anchor: middle !important;
+	dominant-baseline: central !important;
+}
+
+/* Flowchart node text styling */
+.mindmap-diagram svg g.nodes g.node text {
+	font-size: 13px !important;
+	font-weight: 500 !important;
+	fill: #333333 !important;
+	text-anchor: middle !important;
+	dominant-baseline: central !important;
+}
+
+/* Root node styling */
+.mindmap-diagram svg g.nodes g.rootStyle text {
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	fill: #ffffff !important;
+}
+
+/* Ensure all text elements are visible */
+.mindmap-diagram svg text tspan {
+	fill: inherit !important;
+	font-size: inherit !important;
+	font-weight: inherit !important;
+}
+
+/* Better contrast for node backgrounds */
+.mindmap-diagram svg g.nodes g.node rect {
+	fill: #ffffff !important;
+	stroke: #667eea !important;
+	stroke-width: 2px !important;
+}
+
+.mindmap-diagram svg g.nodes g.rootStyle rect {
+	fill: #667eea !important;
+	stroke: #4c63d2 !important;
+	stroke-width: 3px !important;
+}
+
+/* Force text visibility for all flowchart elements */
+.mindmap-diagram svg .flowchart-label {
+	color: #333333 !important;
+	fill: #333333 !important;
+}
+
 /* Responsive styles for TOC and Mindmap */
 @media (max-width: 768px) {
 	.toc-button {

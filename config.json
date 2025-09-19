@@ -1,0 +1,10 @@
+{
+  "mindmap": {
+    "type": "spider",
+    "description": "Controls the mindmap visualization style",
+    "options": {
+      "spider": "Radial mindmap with central root node (default)",
+      "tree": "Hierarchical tree layout with top-down structure"
+    }
+  }
+}
