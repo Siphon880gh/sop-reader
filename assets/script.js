@@ -12,6 +12,7 @@ const md = window.markdownit({
 let markdownFiles = [];
 let currentMarkdownText = '';
 let isMarkdownView = false;
+let currentTocData = [];
 
 async function loadFileList() {
     const fileSelect = document.getElementById('file-select');
@@ -166,12 +167,131 @@ function renderCurrentView() {
         // Show raw markdown
         contentEl.className = 'raw-markdown';
         contentEl.textContent = currentMarkdownText;
+        // Clear TOC for raw markdown view
+        currentTocData = [];
+        updateTableOfContents();
     } else {
         // Show rendered HTML
         contentEl.className = '';
         const html = md.render(currentMarkdownText);
         contentEl.innerHTML = html;
+        
+        // Generate table of contents after rendering
+        generateTableOfContents();
     }
+}
+
+// Parse headings from rendered HTML to generate table of contents
+function generateTableOfContents() {
+    const contentEl = document.getElementById('markdown-content');
+    const headings = contentEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    currentTocData = [];
+    
+    headings.forEach((heading, index) => {
+        const level = parseInt(heading.tagName.charAt(1)); // Extract number from h1, h2, etc.
+        const text = heading.textContent.trim();
+        const id = `heading-${index}`;
+        
+        // Add ID to heading for navigation
+        heading.id = id;
+        
+        currentTocData.push({
+            level,
+            text,
+            id,
+            element: heading
+        });
+    });
+    
+    updateTableOfContents();
+}
+
+// Update the table of contents display
+function updateTableOfContents() {
+    const tocContent = document.getElementById('toc-content');
+    
+    if (currentTocData.length === 0) {
+        tocContent.innerHTML = `
+            <div class="toc-empty">
+                <p>No table of contents available for this document.</p>
+                <br/>
+                <p>Questions to ask:</p>
+                - Is it rendered HTML yet?<br/>
+                - Does it have headings?
+            </div>
+        `;
+        return;
+    }
+    
+    const tocList = document.createElement('ul');
+    tocList.className = 'toc-list';
+    
+    currentTocData.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.className = 'toc-item';
+        
+        const link = document.createElement('a');
+        link.href = `#${item.id}`;
+        link.className = `toc-link level-${item.level}`;
+        link.textContent = item.text;
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            scrollToHeading(item.id);
+            // Close TOC panel on mobile after clicking
+            if (window.innerWidth <= 768) {
+                toggleTocPanel();
+            }
+        });
+        
+        listItem.appendChild(link);
+        tocList.appendChild(listItem);
+    });
+    
+    tocContent.innerHTML = '';
+    tocContent.appendChild(tocList);
+}
+
+// Scroll to a specific heading
+function scrollToHeading(headingId) {
+    const heading = document.getElementById(headingId);
+    if (heading) {
+        heading.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+        
+        // Update active state
+        updateActiveTocItem(headingId);
+    }
+}
+
+// Update active TOC item based on current scroll position
+function updateActiveTocItem(activeId = null) {
+    const tocLinks = document.querySelectorAll('.toc-link');
+    
+    tocLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    if (activeId) {
+        const activeLink = document.querySelector(`a[href="#${activeId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+}
+
+// Toggle table of contents panel visibility
+function toggleTocPanel() {
+    const tocPanel = document.getElementById('toc-panel');
+    tocPanel.classList.toggle('visible');
+}
+
+// Close table of contents panel
+function closeTocPanel() {
+    const tocPanel = document.getElementById('toc-panel');
+    tocPanel.classList.remove('visible');
 }
 
 // Initialize when the page loads
@@ -185,4 +305,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for view toggle
     const toggleButton = document.getElementById('view-toggle');
     toggleButton.addEventListener('click', toggleView);
+    
+    // Add event listeners for table of contents
+    const tocButton = document.getElementById('toc-button');
+    const tocCloseButton = document.getElementById('toc-close');
+    const tocPanel = document.getElementById('toc-panel');
+    
+    tocButton.addEventListener('click', toggleTocPanel);
+    tocCloseButton.addEventListener('click', closeTocPanel);
+    
+    // Close TOC panel when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!tocPanel.contains(e.target) && !tocButton.contains(e.target)) {
+            closeTocPanel();
+        }
+    });
+    
+    // Close TOC panel on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeTocPanel();
+        }
+    });
 });

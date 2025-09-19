@@ -5,9 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Document Viewer</title>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+    <!-- Table of Contents Button -->
+    <button id="toc-button" class="toc-button" title="Table of Contents">
+        <i class="fas fa-book"></i>
+    </button>
+
+    <!-- Table of Contents Panel -->
+    <div id="toc-panel" class="toc-panel">
+        <div class="toc-header">
+            <h3>Table of Contents</h3>
+            <button id="toc-close" class="toc-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="toc-content" class="toc-content">
+            <p class="toc-empty">No table of contents available for this document.</p>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>📄 SOP Viewer</h1>
