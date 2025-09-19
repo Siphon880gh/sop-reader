@@ -234,6 +234,65 @@
             cursor: not-allowed;
         }
 
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+
+        .toggle-button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .toggle-button:active {
+            transform: translateY(0);
+        }
+
+        .toggle-button.markdown-mode {
+            background: #48bb78;
+        }
+
+        .toggle-button.markdown-mode:hover {
+            background: #38a169;
+        }
+
+        .raw-markdown {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -246,6 +305,21 @@
             .header h1 {
                 font-size: 2rem;
             }
+
+            .view-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .toggle-container {
+                justify-content: center;
+            }
+
+            .toggle-button {
+                width: 100%;
+                max-width: 200px;
+            }
         }
     </style>
 </head>
@@ -257,10 +331,19 @@
         </div>
 
         <div class="file-selector">
-            <label for="file-select">Choose a markdown file:</label>
-            <select id="file-select" disabled>
-                <option value="">Loading files...</option>
-            </select>
+            <div class="view-controls">
+                <div>
+                    <label for="file-select">Choose a markdown file:</label>
+                    <select id="file-select" disabled>
+                        <option value="">Loading files...</option>
+                    </select>
+                </div>
+                <div class="toggle-container">
+                    <button id="view-toggle" class="toggle-button" title="Switch between rendered HTML and raw markdown">
+                        📄 Rendered HTML
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="content">
@@ -287,8 +370,10 @@
             typographer: true  // Enable some language-neutral replacement + quotes beautification
         });
 
-        // Global variable to store the loaded file list
+        // Global variables
         let markdownFiles = [];
+        let currentMarkdownText = '';
+        let isMarkdownView = false;
 
         async function loadFileList() {
             const fileSelect = document.getElementById('file-select');
@@ -375,11 +460,15 @@
                 
                 const markdownText = await response.text();
                 
-                // Convert markdown to HTML
-                const html = md.render(markdownText);
+                // Store the raw markdown text
+                currentMarkdownText = markdownText;
                 
-                // Display the rendered HTML
-                contentEl.innerHTML = html;
+                // Reset to Rendered HTML when loading a new file
+                isMarkdownView = false;
+                updateToggleButton();
+                
+                // Display the content based on current view mode
+                renderCurrentView();
                 loadingEl.style.display = 'none';
                 
             } catch (error) {
@@ -400,6 +489,53 @@
             loadMarkdownFile(selectedFile);
         }
 
+        // Toggle between HTML and markdown views
+        function toggleView() {
+            if (!currentMarkdownText) {
+                return; // No content loaded
+            }
+            
+            isMarkdownView = !isMarkdownView;
+            updateToggleButton();
+            renderCurrentView();
+        }
+
+        // Update the toggle button appearance and text
+        function updateToggleButton() {
+            const toggleButton = document.getElementById('view-toggle');
+            
+            if (isMarkdownView) {
+                toggleButton.textContent = '📝 Markdown Code';
+                toggleButton.className = 'toggle-button markdown-mode';
+                toggleButton.title = 'Currently showing raw markdown. Click to switch to Rendered HTML.';
+            } else {
+                toggleButton.textContent = '📄 Rendered HTML';
+                toggleButton.className = 'toggle-button';
+                toggleButton.title = 'Currently showing rendered HTML. Click to switch to raw markdown.';
+            }
+        }
+
+        // Render content based on current view mode
+        function renderCurrentView() {
+            const contentEl = document.getElementById('markdown-content');
+            
+            if (!currentMarkdownText) {
+                contentEl.innerHTML = '';
+                return;
+            }
+            
+            if (isMarkdownView) {
+                // Show raw markdown
+                contentEl.className = 'raw-markdown';
+                contentEl.textContent = currentMarkdownText;
+            } else {
+                // Show rendered HTML
+                contentEl.className = '';
+                const html = md.render(currentMarkdownText);
+                contentEl.innerHTML = html;
+            }
+        }
+
         // Initialize when the page loads
         document.addEventListener('DOMContentLoaded', function() {
             loadFileList();
@@ -407,6 +543,10 @@
             // Add event listener for file selection
             const fileSelect = document.getElementById('file-select');
             fileSelect.addEventListener('change', handleFileSelection);
+            
+            // Add event listener for view toggle
+            const toggleButton = document.getElementById('view-toggle');
+            toggleButton.addEventListener('click', toggleView);
         });
     </script>
 </body>
