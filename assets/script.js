@@ -205,10 +205,10 @@ function renderCurrentView() {
         // Show raw markdown
         contentEl.className = 'raw-markdown';
         contentEl.textContent = currentMarkdownText;
-        // Clear TOC and mindmap for raw markdown view
-        currentTocData = [];
+        // Generate TOC from markdown text
+        generateTableOfContentsFromMarkdown();
+        // Clear mindmap for raw markdown view
         clearMindmapData();
-        updateTableOfContents();
         updateMindmapButton();
     } else {
         // Show rendered HTML
@@ -249,6 +249,46 @@ function generateTableOfContents() {
             id,
             element: heading
         });
+    });
+    
+    updateTableOfContents();
+}
+
+// Parse headings from raw markdown text to generate table of contents
+function generateTableOfContentsFromMarkdown() {
+    if (!currentMarkdownText) {
+        currentTocData = [];
+        updateTableOfContents();
+        return;
+    }
+    
+    currentTocData = [];
+    const lines = currentMarkdownText.split('\n');
+    
+    lines.forEach((line, lineIndex) => {
+        const trimmedLine = line.trim();
+        
+        // Match markdown headings (# ## ### etc.)
+        const headingMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
+        if (headingMatch) {
+            const level = headingMatch[1].length; // Number of # characters
+            const text = headingMatch[2].trim();
+            
+            // Skip headings that contain mindmap image syntax (ending with 1x1.png) or 1x1))
+            if (text.includes('1x1.png)') || text.includes('1x1)')) {
+                return; // Skip this heading
+            }
+            
+            const id = `markdown-heading-${lineIndex}`;
+            
+            currentTocData.push({
+                level,
+                text,
+                id,
+                lineNumber: lineIndex + 1, // Store line number for scrolling
+                element: null // No DOM element in markdown view
+            });
+        }
     });
     
     updateTableOfContents();
@@ -301,16 +341,50 @@ function updateTableOfContents() {
 
 // Scroll to a specific heading
 function scrollToHeading(headingId) {
-    const heading = document.getElementById(headingId);
-    if (heading) {
-        heading.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-        
-        // Update active state
-        updateActiveTocItem(headingId);
+    if (isMarkdownView) {
+        // In markdown view, scroll to line number
+        const tocItem = currentTocData.find(item => item.id === headingId);
+        if (tocItem && tocItem.lineNumber) {
+            scrollToMarkdownLine(tocItem.lineNumber);
+            updateActiveTocItem(headingId);
+        }
+    } else {
+        // In HTML view, scroll to DOM element
+        const heading = document.getElementById(headingId);
+        if (heading) {
+            heading.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Update active state
+            updateActiveTocItem(headingId);
+        }
     }
+}
+
+// Scroll to a specific line in markdown view
+function scrollToMarkdownLine(lineNumber) {
+    const contentEl = document.getElementById('markdown-content');
+    if (!contentEl || !isMarkdownView) return;
+    
+    // Calculate approximate position based on line number
+    const lines = currentMarkdownText.split('\n');
+    if (lineNumber > lines.length) return;
+    
+    // Get the text content and split by lines to calculate position
+    const textUpToLine = lines.slice(0, lineNumber - 1).join('\n');
+    const totalText = contentEl.textContent;
+    
+    // Calculate the percentage position
+    const position = textUpToLine.length / totalText.length;
+    
+    // Scroll to that position
+    const scrollTop = contentEl.scrollHeight * position;
+    contentEl.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+    });
 }
 
 // Update active TOC item based on current scroll position
