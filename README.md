@@ -18,6 +18,8 @@ While it is an SOP reader for Markdown documents in a folder: It not only builds
 
 ## Features
 
+![Screenshot of app](readme/app-v1.png)
+
 - 📄 **Dynamic File Discovery**: Automatically scans the `documents/` folder for markdown files
 - 🔄 **Build System**: Uses npm scripts to generate file listings with metadata
 - 👀 **File Watching**: Development mode with automatic rebuilds
