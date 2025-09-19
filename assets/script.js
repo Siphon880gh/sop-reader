@@ -301,6 +301,88 @@ function generateTreeMermaid(mindmapTree) {
     return mermaid;
 }
 
+function generateTreeRightMermaid(mindmapTree) {
+    // Generate Mermaid tree syntax with left-to-right flow (flowchart LR)
+    let mermaid = "flowchart LR\n";
+    let nodeId = 0;
+    const nodeMap = new Map();
+    let connections = [];
+    let rootNodeId = null;
+    
+    function addNode(node, parentId = null) {
+        const currentId = `N${nodeId++}`;
+        // Clean label for Mermaid compatibility
+        let cleanLabel = node.label
+            .replace(/[()[\]{}#]/g, '')
+            .replace(/"/g, '')
+            .replace(/'/g, '')
+            .replace(/&/g, 'and')
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Ensure we have some text
+        if (!cleanLabel || cleanLabel.length === 0) {
+            cleanLabel = 'Node';
+        }
+        
+        // Truncate very long labels
+        if (cleanLabel.length > 30) {
+            cleanLabel = cleanLabel.substring(0, 27) + '...';
+        }
+        
+        nodeMap.set(currentId, cleanLabel);
+        
+        // Store root node ID for styling
+        if (parentId === null && rootNodeId === null) {
+            rootNodeId = currentId;
+        }
+        
+        // Add node definition - use simple rectangle format
+        mermaid += `    ${currentId}[${cleanLabel}]\n`;
+        
+        // Store connection for later
+        if (parentId !== null) {
+            connections.push(`    ${parentId} --> ${currentId}\n`);
+        }
+        
+        // Process children
+        for (const child of node.children) {
+            addNode(child, currentId);
+        }
+        
+        return currentId;
+    }
+    
+    // Create a virtual root if multiple top-level nodes
+    if (mindmapTree.length > 1) {
+        const virtualRootId = `N${nodeId++}`;
+        rootNodeId = virtualRootId;
+        const rootText = getRootNodeText();
+        mermaid += `    ${virtualRootId}[${rootText}]\n`;
+        
+        for (const node of mindmapTree) {
+            addNode(node, virtualRootId);
+        }
+    } else if (mindmapTree.length === 1) {
+        addNode(mindmapTree[0]);
+    }
+    
+    // Add all connections
+    for (const connection of connections) {
+        mermaid += connection;
+    }
+    
+    // Add styling with explicit node targeting
+    mermaid += `\n    classDef default fill:#ffffff,stroke:#667eea,stroke-width:2px,color:#333333\n`;
+    mermaid += `    classDef rootStyle fill:#667eea,stroke:#4c63d2,stroke-width:3px,color:#ffffff\n`;
+    
+    if (rootNodeId) {
+        mermaid += `    class ${rootNodeId} rootStyle\n`;
+    }
+    
+    return mermaid;
+}
+
 function generateMindmapFromLists() {
     const contentEl = document.getElementById('markdown-content');
     if (!contentEl || isMarkdownView) {
@@ -382,8 +464,10 @@ function generateMindmapFromLists() {
     // Check config for mindmap type, default to spider if not loaded
     const mindmapType = appConfig?.mindmap?.type || 'spider';
     
-    if (mindmapType === 'tree') {
+    if (mindmapType === 'tree' || mindmapType === 'tree-down') {
         return generateTreeMermaid(mindmapTree);
+    } else if (mindmapType === 'tree-right') {
+        return generateTreeRightMermaid(mindmapTree);
     } else {
         // Generate Mermaid spider mindmap syntax (default)
         const rootText = getRootNodeText();

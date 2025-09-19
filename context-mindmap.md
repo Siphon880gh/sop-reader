@@ -76,15 +76,17 @@ function generateMindmapFromLists() {
 
 ## Configuration
 
-**File**: `config.json` (11 lines)
+**File**: `config.json` (13 lines)
 ```json
 {
   "mindmap": {
-    "type": "spider",  // or "tree"
+    "type": "spider",  // "spider", "tree", "tree-down", or "tree-right"
     "description": "Controls the mindmap visualization style",
     "options": {
       "spider": "Radial mindmap with central root node (default)",
-      "tree": "Hierarchical tree layout with top-down structure"
+      "tree": "Hierarchical tree layout with top-down structure",
+      "tree-down": "Hierarchical tree layout with top-down structure (same as tree)",
+      "tree-right": "Hierarchical tree layout with left-to-right structure"
     }
   }
 }

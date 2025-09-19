@@ -20,7 +20,7 @@ For detailed technical context on specific features, refer to:
   - `assets/style.css` (688 lines): Responsive styling with gradient design, TOC, and mindmap panel styling
   - `assets/script.js` (920 lines): Markdown rendering, UI logic, TOC functionality, mindmap generation, and configuration system
 - **Configuration**: JSON-based configuration system
-  - `config.json` (11 lines): Application configuration for mindmap types and other settings
+  - `config.json` (13 lines): Application configuration for mindmap types and other settings
 - **Markdown Rendering**: [markdown-it](https://github.com/markdown-it/markdown-it) v14.0.0 (CDN)
 - **Mindmap Visualization**: [Mermaid.js](https://mermaid.js.org/) v10.6.1 (CDN) for dynamic mindmap generation with configurable layout types
 - **Icons**: Font Awesome 6.4.0 (CDN) for UI icons
@@ -121,7 +121,7 @@ async function loadConfig() {
 // Configuration structure in config.json
 {
   "mindmap": {
-    "type": "spider", // or "tree"
+    "type": "spider", // "spider", "tree", "tree-down", or "tree-right"
     "description": "Controls the mindmap visualization style"
   }
 }
@@ -194,7 +194,7 @@ npm run serve    # Start server without building
 - `assets/script.js` (920 lines): Main JavaScript logic, rendering, UI interactions, TOC functionality, mindmap generation, and configuration system
 - `assets/style.css` (688 lines): All styling, responsive design, TOC styles, and mindmap panel styles
 - `index.html` (87 lines): HTML structure, layout, TOC components, and mindmap components
-- `config.json` (11 lines): Application configuration for mindmap types and other settings
+- `config.json` (13 lines): Application configuration for mindmap types and other settings
 - `scripts/generateFileList.js` (71 lines): Build system, file discovery
 - `documents/`: Content folder (user-managed)
 - `markdownFiles.json`: Generated file metadata (auto-created)
@@ -202,7 +202,7 @@ npm run serve    # Start server without building
 ### Common Tasks:
 - **Add new markdown file**: Drop in `documents/` → run `npm run build`
 - **Create mindmap**: Add markdown list with `![Node Label](img/1x1.png)` images → mindmap auto-detects
-- **Change mindmap layout**: Edit `config.json` - set `mindmap.type` to "spider" or "tree"
+- **Change mindmap layout**: Edit `config.json` - set `mindmap.type` to "spider", "tree", "tree-down", or "tree-right"
 - **Modify styling**: Edit `assets/style.css` or `assets/script.js` configuration
 - **Extend functionality**: Refer to feature-specific context files for detailed implementation guides
 
