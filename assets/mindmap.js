@@ -1,5 +1,11 @@
 // Mindmap-related variables
 let currentMindmapData = null;
+let currentZoomLevel = 1;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let translateX = 0;
+let translateY = 0;
 
 // Mindmap detection and parsing functions
 function detectMindmapContent() {
@@ -615,4 +621,123 @@ function clearMindmapData() {
     currentMindmapData = null;
     window.prerenderedMindmapSVG = null;
     window.prerenderedMindmapId = null;
+    resetZoom();
+}
+
+// Zoom functionality
+function zoomIn(container) {
+    currentZoomLevel = Math.min(currentZoomLevel * 1.2, 3);
+    applyZoom(container);
+}
+
+function zoomOut(container) {
+    currentZoomLevel = Math.max(currentZoomLevel / 1.2, 0.3);
+    applyZoom(container);
+}
+
+function resetZoom(container) {
+    currentZoomLevel = 1;
+    translateX = 0;
+    translateY = 0;
+    applyZoom(container);
+}
+
+function applyZoom(container) {
+    const mindmapDiagram = container ? container.querySelector('.mindmap-diagram') : 
+                          document.querySelector('.mindmap-panel.visible .mindmap-diagram') ||
+                          document.querySelector('.mindmap-fullscreen-modal.visible .mindmap-diagram');
+    
+    if (mindmapDiagram) {
+        const transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoomLevel})`;
+        mindmapDiagram.style.transform = transform;
+        
+        // Add/remove zoomed class for cursor styling
+        if (currentZoomLevel > 1) {
+            mindmapDiagram.classList.add('zoomed');
+            enableDragging(mindmapDiagram);
+        } else {
+            mindmapDiagram.classList.remove('zoomed');
+            disableDragging(mindmapDiagram);
+        }
+    }
+}
+
+// Dragging functionality for zoomed mindmaps
+function enableDragging(element) {
+    element.addEventListener('mousedown', startDrag);
+    element.addEventListener('mousemove', drag);
+    element.addEventListener('mouseup', endDrag);
+    element.addEventListener('mouseleave', endDrag);
+}
+
+function disableDragging(element) {
+    element.removeEventListener('mousedown', startDrag);
+    element.removeEventListener('mousemove', drag);
+    element.removeEventListener('mouseup', endDrag);
+    element.removeEventListener('mouseleave', endDrag);
+}
+
+function startDrag(e) {
+    if (currentZoomLevel > 1) {
+        isDragging = true;
+        dragStartX = e.clientX - translateX;
+        dragStartY = e.clientY - translateY;
+        e.preventDefault();
+    }
+}
+
+function drag(e) {
+    if (isDragging && currentZoomLevel > 1) {
+        translateX = e.clientX - dragStartX;
+        translateY = e.clientY - dragStartY;
+        applyZoom();
+        e.preventDefault();
+    }
+}
+
+function endDrag() {
+    isDragging = false;
+}
+
+// Full screen modal functions
+function openFullScreenMindmap() {
+    const fullScreenModal = document.getElementById('mindmap-fullscreen-modal');
+    const fullScreenContent = document.getElementById('mindmap-fullscreen-content');
+    
+    if (!currentMindmapData) {
+        fullScreenContent.innerHTML = '<div class="mindmap-empty">No mindmap available for this document.</div>';
+    } else {
+        // Copy the current mindmap to full screen
+        const currentMindmapContent = document.getElementById('mindmap-content');
+        const mindmapDiagram = currentMindmapContent.querySelector('.mindmap-diagram');
+        
+        if (mindmapDiagram) {
+            // Clone the mindmap diagram for full screen
+            const clonedDiagram = mindmapDiagram.cloneNode(true);
+            clonedDiagram.style.transform = ''; // Reset any zoom/transform
+            fullScreenContent.innerHTML = '';
+            fullScreenContent.appendChild(clonedDiagram);
+            
+            // Reset zoom for full screen
+            currentZoomLevel = 1;
+            translateX = 0;
+            translateY = 0;
+        } else {
+            fullScreenContent.innerHTML = '<div class="mindmap-empty">No mindmap available for this document.</div>';
+        }
+    }
+    
+    fullScreenModal.classList.add('visible');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closeFullScreenMindmap() {
+    const fullScreenModal = document.getElementById('mindmap-fullscreen-modal');
+    fullScreenModal.classList.remove('visible');
+    document.body.style.overflow = ''; // Restore background scrolling
+    
+    // Reset zoom state
+    currentZoomLevel = 1;
+    translateX = 0;
+    translateY = 0;
 }

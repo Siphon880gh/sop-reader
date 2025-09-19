@@ -38,11 +38,51 @@
     <div id="mindmap-panel" class="mindmap-panel">
         <div class="mindmap-header">
             <h3>Mindmap</h3>
-            <button id="mindmap-close" class="mindmap-close">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="mindmap-controls">
+                <button id="mindmap-zoom-out" class="mindmap-control-btn" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button id="mindmap-zoom-reset" class="mindmap-control-btn" title="Reset Zoom">
+                    <i class="fas fa-compress"></i>
+                </button>
+                <button id="mindmap-zoom-in" class="mindmap-control-btn" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <div class="mindmap-divider"></div>
+                <button id="mindmap-fullscreen" class="mindmap-control-btn" title="Full Screen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button id="mindmap-close" class="mindmap-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
         <div id="mindmap-content" class="mindmap-content">
+            <div class="mindmap-empty">No mindmap available for this document.</div>
+        </div>
+    </div>
+
+    <!-- Full Screen Mindmap Modal -->
+    <div id="mindmap-fullscreen-modal" class="mindmap-fullscreen-modal">
+        <div class="mindmap-fullscreen-header">
+            <h3>Mindmap - Full Screen</h3>
+            <div class="mindmap-fullscreen-controls">
+                <button id="mindmap-fullscreen-zoom-out" class="mindmap-control-btn" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <button id="mindmap-fullscreen-zoom-reset" class="mindmap-control-btn" title="Reset Zoom">
+                    <i class="fas fa-compress"></i>
+                </button>
+                <button id="mindmap-fullscreen-zoom-in" class="mindmap-control-btn" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <div class="mindmap-divider"></div>
+                <button id="mindmap-fullscreen-close" class="mindmap-fullscreen-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mindmap-fullscreen-content" class="mindmap-fullscreen-content">
             <div class="mindmap-empty">No mindmap available for this document.</div>
         </div>
     </div>

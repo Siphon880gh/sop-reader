@@ -98,6 +98,41 @@
 	color: #333;
 }
 
+.mindmap-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.mindmap-control-btn {
+	background: none;
+	border: 1px solid #ddd;
+	color: #666;
+	font-size: 0.9rem;
+	cursor: pointer;
+	padding: 6px 8px;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+}
+
+.mindmap-control-btn:hover {
+	background: #e9ecef;
+	color: #333;
+	border-color: #bbb;
+}
+
+.mindmap-divider {
+	width: 1px;
+	height: 20px;
+	background: #ddd;
+	margin: 0 8px;
+}
+
 .mindmap-close {
 	background: none;
 	border: none;
@@ -204,6 +239,106 @@ img[src*="1x1"], img[src$="1x1.png"] {
 	filter: brightness(0.9) !important;
 }
 
+/* Full Screen Modal Styles */
+.mindmap-fullscreen-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.9);
+	z-index: 9999;
+	display: none;
+	flex-direction: column;
+}
+
+.mindmap-fullscreen-modal.visible {
+	display: flex;
+}
+
+.mindmap-fullscreen-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(10px);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mindmap-fullscreen-header h3 {
+	margin: 0;
+	font-size: 1.2rem;
+	color: #333;
+}
+
+.mindmap-fullscreen-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.mindmap-fullscreen-close {
+	background: none;
+	border: none;
+	color: #666;
+	font-size: 1.4rem;
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 6px;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+}
+
+.mindmap-fullscreen-close:hover {
+	background: rgba(0, 0, 0, 0.1);
+	color: #333;
+}
+
+.mindmap-fullscreen-content {
+	flex: 1;
+	padding: 2rem;
+	overflow: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.mindmap-fullscreen-content .mindmap-diagram {
+	width: 100%;
+	height: 100%;
+	min-height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.mindmap-fullscreen-content .mindmap-empty {
+	color: #ccc;
+	font-size: 1.2rem;
+}
+
+/* Zoom functionality */
+.mindmap-content .mindmap-diagram,
+.mindmap-fullscreen-content .mindmap-diagram {
+	transition: transform 0.3s ease;
+	transform-origin: center center;
+}
+
+.mindmap-content .mindmap-diagram.zoomed,
+.mindmap-fullscreen-content .mindmap-diagram.zoomed {
+	cursor: grab;
+}
+
+.mindmap-content .mindmap-diagram.zoomed:active,
+.mindmap-fullscreen-content .mindmap-diagram.zoomed:active {
+	cursor: grabbing;
+}
+
 /* Responsive styles for Mindmap */
 @media (max-width: 768px) {
 	.mindmap-button {
@@ -221,5 +356,23 @@ img[src*="1x1"], img[src$="1x1.png"] {
 		width: auto;
 		max-width: none;
 		max-height: 70vh;
+	}
+
+	.mindmap-controls {
+		gap: 4px;
+	}
+
+	.mindmap-control-btn {
+		width: 28px;
+		height: 28px;
+		font-size: 0.8rem;
+	}
+
+	.mindmap-fullscreen-header {
+		padding: 0.8rem 1rem;
+	}
+
+	.mindmap-fullscreen-content {
+		padding: 1rem;
 	}
 }

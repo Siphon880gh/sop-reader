@@ -442,8 +442,33 @@ document.addEventListener('DOMContentLoaded', async function() {
     const mindmapCloseButton = document.getElementById('mindmap-close');
     const mindmapPanel = document.getElementById('mindmap-panel');
     
+    // Mindmap panel controls
+    const mindmapZoomIn = document.getElementById('mindmap-zoom-in');
+    const mindmapZoomOut = document.getElementById('mindmap-zoom-out');
+    const mindmapZoomReset = document.getElementById('mindmap-zoom-reset');
+    const mindmapFullscreen = document.getElementById('mindmap-fullscreen');
+    
+    // Full screen modal controls
+    const mindmapFullscreenModal = document.getElementById('mindmap-fullscreen-modal');
+    const mindmapFullscreenClose = document.getElementById('mindmap-fullscreen-close');
+    const mindmapFullscreenZoomIn = document.getElementById('mindmap-fullscreen-zoom-in');
+    const mindmapFullscreenZoomOut = document.getElementById('mindmap-fullscreen-zoom-out');
+    const mindmapFullscreenZoomReset = document.getElementById('mindmap-fullscreen-zoom-reset');
+    
     mindmapButton.addEventListener('click', toggleMindmapPanel);
     mindmapCloseButton.addEventListener('click', closeMindmapPanel);
+    
+    // Mindmap panel zoom controls
+    mindmapZoomIn.addEventListener('click', () => zoomIn(mindmapPanel));
+    mindmapZoomOut.addEventListener('click', () => zoomOut(mindmapPanel));
+    mindmapZoomReset.addEventListener('click', () => resetZoom(mindmapPanel));
+    mindmapFullscreen.addEventListener('click', openFullScreenMindmap);
+    
+    // Full screen modal controls
+    mindmapFullscreenClose.addEventListener('click', closeFullScreenMindmap);
+    mindmapFullscreenZoomIn.addEventListener('click', () => zoomIn(mindmapFullscreenModal));
+    mindmapFullscreenZoomOut.addEventListener('click', () => zoomOut(mindmapFullscreenModal));
+    mindmapFullscreenZoomReset.addEventListener('click', () => resetZoom(mindmapFullscreenModal));
     
     // Close panels when clicking outside
     document.addEventListener('click', function(e) {
@@ -453,6 +478,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (!mindmapPanel.contains(e.target) && !mindmapButton.contains(e.target)) {
             closeMindmapPanel();
         }
+        // Close full screen modal when clicking on the backdrop
+        if (mindmapFullscreenModal.classList.contains('visible') && e.target === mindmapFullscreenModal) {
+            closeFullScreenMindmap();
+        }
     });
     
     // Close panels on escape key
@@ -460,6 +489,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (e.key === 'Escape') {
             closeTocPanel();
             closeMindmapPanel();
+            closeFullScreenMindmap();
         }
     });
 });
