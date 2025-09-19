@@ -63,20 +63,16 @@ The application supports configuration through a `config.json` file in the root 
 ```json
 {
   "mindmap": {
-    "type": "spider",
-    "description": "Controls the mindmap visualization style",
-    "options": {
-      "spider": "Radial mindmap with central root node (default)",
-      "tree": "Hierarchical tree layout with top-down structure"
-    }
+    "type": "spider"
   }
 }
 ```
 
 ### Mindmap Types
 
-- **Spider (default)**: Radial layout with nodes arranged around a central root
-- **Tree**: Hierarchical top-down tree structure
+- **Spider (default)**: Radial mindmap with central root node. Set the type to `spider`.
+- **Tree**: Hierarchical tree layout with top-down structure. Set the type to `tree` or `tree-down`.
+- **Tree-right**: Hierarchical tree layout with left-to-right structure. Set the type to `tree-right`.
 
 To change the mindmap type, simply update the `type` field in `config.json` and refresh the page.
 
