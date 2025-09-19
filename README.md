@@ -7,9 +7,15 @@ By Weng (Weng Fei Fung)
 <a target="_blank" href="https://www.linkedin.com/in/weng-fung/" rel="nofollow"><img src="https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin&labelColor=blue" alt="Linked-In" data-canonical-src="https://img.shields.io/badge/LinkedIn-blue?style=flat&amp;logo=linkedin&amp;labelColor=blue" style="max-width:10ch;"></a>
 <a target="_blank" href="https://www.youtube.com/@WayneTeachesCode/" rel="nofollow"><img src="https://img.shields.io/badge/Youtube-red?style=flat&logo=youtube&labelColor=red" alt="Youtube" data-canonical-src="https://img.shields.io/badge/Youtube-red?style=flat&amp;logo=youtube&amp;labelColor=red" style="max-width:10ch;"></a>
 
-**A dynamic markdown document viewer with intelligent mindmap generation that automatically discovers and renders markdown files with zero configuration.** Drop `.md` files in the `documents/` folder and they instantly appear in a web dropdown selector. Built with vanilla HTML/CSS/JavaScript, markdown-it, and Mermaid.js for fast, static hosting compatibility. Features dual-mode viewing (rendered HTML + raw markdown), interactive table of contents with smooth navigation, **automatic mindmap visualization with configurable layouts (spider/tree) from markdown lists**, modern responsive UI with gradient design, and automated build system with file watching for seamless development workflow.
+## Summary
 
-*For detailed technical context and AI-friendly documentation, see [`context.md`](context.md)*
+• **Zero-configuration markdown viewer** - Drop `.md` files in `documents/` folder, they instantly appear in web dropdown
+• **Intelligent mindmap generation** - Automatically creates Mermaid.js mindmaps from markdown lists with configurable layouts (spider/tree)
+• **Dual-mode viewing** - Toggle between rendered HTML and raw markdown with interactive table of contents
+• **Static hosting compatible** - Built with vanilla HTML/CSS/JavaScript, markdown-it, and automated build system
+• **Modern responsive UI** - Gradient design with smooth navigation and file watching for seamless development
+
+*For detailed technical context and AI-friendly documentation, see [`context.md`](context.md) and feature-specific context files (`context-*.md`)*
 
 In the future:
 While it is an SOP reader for Markdown documents in a folder: It not only builds a table of contents, but also generates mind maps and displays link popovers with preview excerpts defined by selecting the starting and ending words.

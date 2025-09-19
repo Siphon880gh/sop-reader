@@ -1,6 +1,6 @@
 {
   "mindmap": {
-    "type": "spider",
+    "type": "tree",
     "description": "Controls the mindmap visualization style",
     "options": {
       "spider": "Radial mindmap with central root node (default)",

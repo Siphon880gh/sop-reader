@@ -366,6 +366,32 @@ body {
 	transform: scale(0.95);
 }
 
+/* Prerendering animation for mindmap button */
+.mindmap-button.prerendering {
+	position: relative;
+	overflow: hidden;
+}
+
+.mindmap-button.prerendering::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+	animation: prerenderSweep 1.5s infinite;
+}
+
+@keyframes prerenderSweep {
+	0% {
+		left: -100%;
+	}
+	100% {
+		left: 100%;
+	}
+}
+
 .toc-button:hover {
 	background: #5a67d8;
 	transform: scale(1.1);
@@ -533,7 +559,6 @@ body {
 	margin: 0;
 	font-size: 1.1rem;
 	color: #333;
-	font-weight: 600;
 }
 
 .mindmap-close {
@@ -576,56 +601,38 @@ body {
 	min-height: 400px;
 }
 
-/* Enhanced styling for tree mindmap text visibility */
+/* Base font family for mindmap text - let JavaScript handle colors and weights */
 .mindmap-diagram svg text {
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
-	font-size: 13px !important;
-	font-weight: 500 !important;
-	fill: #333333 !important;
 	text-anchor: middle !important;
 	dominant-baseline: central !important;
 }
 
-/* Flowchart node text styling */
+/* Flowchart node text positioning only */
 .mindmap-diagram svg g.nodes g.node text {
-	font-size: 13px !important;
-	font-weight: 500 !important;
-	fill: #333333 !important;
 	text-anchor: middle !important;
 	dominant-baseline: central !important;
 }
 
-/* Root node styling */
+/* Root node text color for flowchart (tree mode) */
 .mindmap-diagram svg g.nodes g.rootStyle text {
-	font-size: 14px !important;
-	font-weight: 600 !important;
 	fill: #ffffff !important;
-}
-
-/* Ensure all text elements are visible */
-.mindmap-diagram svg text tspan {
-	fill: inherit !important;
-	font-size: inherit !important;
-	font-weight: inherit !important;
 }
 
 /* Better contrast for node backgrounds */
 .mindmap-diagram svg g.nodes g.node rect {
 	fill: #ffffff !important;
 	stroke: #667eea !important;
-	stroke-width: 2px !important;
 }
 
 .mindmap-diagram svg g.nodes g.rootStyle rect {
 	fill: #667eea !important;
 	stroke: #4c63d2 !important;
-	stroke-width: 3px !important;
 }
 
-/* Force text visibility for all flowchart elements */
+/* Force text visibility for all flowchart elements - backgrounds only, let JS handle text colors */
 .mindmap-diagram svg .flowchart-label {
-	color: #333333 !important;
-	fill: #333333 !important;
+	/* Text colors handled by JavaScript CSS injection */
 }
 
 /* Responsive styles for TOC and Mindmap */
@@ -662,4 +669,21 @@ body {
 		max-width: none;
 		max-height: 70vh;
 	}
+}
+
+/* Spider mindmap root node styling - force pale blue background */
+
+
+/* All mindmap nodes should have light blue background */
+.mindmap-diagram svg .mindmap-node path,
+.mindmap-diagram svg g[class*="section-"] path {
+	fill: #e6f0ff !important;
+	stroke: #667eea !important;
+	stroke-width: 2px !important;
+}
+
+/* Only keep font family for mindmap text - let JavaScript handle styling */
+.mindmap-diagram svg text,
+.mindmap-diagram svg tspan {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }

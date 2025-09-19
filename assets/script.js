@@ -19,12 +19,17 @@ let appConfig = null;
 // Initialize Mermaid
 mermaid.initialize({
     startOnLoad: false,
-    theme: 'default',
+    theme: 'base',
     themeVariables: {
-        primaryColor: '#667eea',
-        primaryTextColor: '#333',
-        primaryBorderColor: '#667eea',
-        lineColor: '#666'
+        // Only set background colors, let CSS handle text colors and styling
+        cScale0: '#e6f0ff',  // Light blue background for all nodes
+        cScale1: '#e6f0ff',
+        cScale2: '#e6f0ff',
+        cScale3: '#e6f0ff',
+        cScale4: '#e6f0ff',
+        cScale5: '#e6f0ff',
+        cScale6: '#e6f0ff',
+        cScale7: '#e6f0ff'
     }
 });
 
@@ -76,6 +81,142 @@ function treeToMermaid(node, indent = 1) {
     }
     
     return s;
+}
+
+function getRootNodeText() {
+    // Extract H1 heading from rendered markdown content, fallback to 'Mindmap'
+    const contentEl = document.getElementById('markdown-content');
+    if (contentEl && !isMarkdownView) {
+        const h1 = contentEl.querySelector('h1');
+        if (h1) {
+            let h1Text = h1.textContent.trim();
+            // Clean text for Mermaid compatibility
+            h1Text = h1Text
+                .replace(/[()[\]{}#]/g, '')
+                .replace(/"/g, '')
+                .replace(/'/g, '')
+                .replace(/&/g, 'and')
+                .replace(/\s+/g, ' ')
+                .trim();
+            
+            // Ensure we have some text and it's not too long
+            if (h1Text && h1Text.length > 0) {
+                if (h1Text.length > 30) {
+                    h1Text = h1Text.substring(0, 27) + '...';
+                }
+                return h1Text;
+            }
+        }
+    }
+    return 'Mindmap';
+}
+
+/**
+ * Color each branch's text in a Mermaid mindmap SVG using CSS injection.
+ * Branch = any .section-N group (N >= 0). Root (.section-root / .section--1) is ignored.
+ */
+function colorMindmapBranches({
+    container = null,
+    colorFor = (n) => {
+        // Golden-angle palette for good separation with improved contrast
+        const hue = (n * 137.508) % 360;
+        const lightness = 34 + ((n * 9) % 12); // Vary lightness slightly
+        return `hsl(${hue} 72% ${lightness}%)`;
+    }
+} = {}) {
+    const root = container ? document.querySelector(container) : document.getElementById(container);
+    if (!root) {
+        console.warn('colorMindmapBranches: container not found:', container);
+        return;
+    }
+
+    const svg = root.querySelector('svg[id$="-svg"]');
+    if (!svg) {
+        console.warn('colorMindmapBranches: mindmap SVG not found in container');
+        return;
+    }
+
+    const sectionNums = new Set();
+    svg.querySelectorAll('.mindmap-node').forEach(g => {
+        for (const c of g.classList) {
+            const m = c.match(/^section-(\d+)$/);
+            if (m) sectionNums.add(Number(m[1]));
+        }
+    });
+
+    const rules = [];
+    sectionNums.forEach(n => {
+        const color = colorFor(n);
+        rules.push(`#${CSS.escape(svg.id)} .section-${n} text { fill: ${color} !important; }`);
+        rules.push(`#${CSS.escape(svg.id)} .section-${n} tspan { fill: ${color} !important; }`);
+    });
+
+    // Remove any existing branch colorizer styles
+    const oldTag = svg.querySelector('style[data-branch-colorizer]');
+    if (oldTag) oldTag.remove();
+
+    // Inject new styles
+    const styleTag = document.createElement('style');
+    styleTag.setAttribute('data-branch-colorizer', 'true');
+    styleTag.textContent = rules.join('\n');
+    svg.appendChild(styleTag);
+
+    console.log('Branch colors applied to sections:', Array.from(sectionNums).sort((a,b)=>a-b));
+    return { sections: Array.from(sectionNums).sort((a,b)=>a-b) };
+}
+
+/**
+ * Apply basic styling to mindmap (placeholder for future enhancements)
+ */
+function applyMindmapTypography({
+    container = null
+} = {}) {
+    const root = container ? document.querySelector(container) : document.getElementById(container);
+    if (!root) {
+        console.warn('applyMindmapTypography: container not found:', container);
+        return;
+    }
+
+    const svg = root.querySelector('svg[id$="-svg"]');
+    if (!svg) {
+        console.warn('applyMindmapTypography: mindmap SVG not found in container');
+        return;
+    }
+
+    console.log('Basic mindmap styling applied');
+}
+
+/**
+ * Apply both color and typography styling to a mindmap
+ */
+function applyMindmapTextStyling(mindmapId) {
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+        const mindmapContainer = document.getElementById(mindmapId);
+        if (!mindmapContainer) {
+            console.log('No mindmap container found with ID:', mindmapId);
+            return;
+        }
+        
+        console.log('Applying CSS-based mindmap styling to:', mindmapId);
+        
+        // Apply colors using golden-angle palette
+        colorMindmapBranches({
+            container: `#${mindmapId}`,
+            colorFor: (n) => {
+                const hue = (n * 137.508) % 360;
+                const lightness = 34 + ((n * 9) % 12);
+                return `hsl(${hue} 72% ${lightness}%)`;
+            }
+        });
+        
+        // Apply stroke-based hierarchy styling
+        applyMindmapTypography({
+            container: `#${mindmapId}`
+        });
+        
+        console.log('Mindmap styling complete for:', mindmapId);
+    }, 100);
 }
 
 function generateTreeMermaid(mindmapTree) {
@@ -134,7 +275,8 @@ function generateTreeMermaid(mindmapTree) {
     if (mindmapTree.length > 1) {
         const virtualRootId = `N${nodeId++}`;
         rootNodeId = virtualRootId;
-        mermaid += `    ${virtualRootId}[Mindmap]\n`;
+        const rootText = getRootNodeText();
+        mermaid += `    ${virtualRootId}[${rootText}]\n`;
         
         for (const node of mindmapTree) {
             addNode(node, virtualRootId);
@@ -165,23 +307,70 @@ function generateMindmapFromLists() {
         return null;
     }
     
-    // Find all ul elements that contain mindmap images
-    const allLists = contentEl.querySelectorAll('ul');
     let mindmapTree = [];
     
-    for (const ul of allLists) {
-        // Check if this ul or its descendants contain mindmap images
-        const hasImages = ul.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0;
-        
-        if (hasImages) {
-            // Check if this ul is not nested inside another ul with mindmap images
-            const parentUl = ul.closest('ul:not(:scope)');
-            const parentHasImages = parentUl ? parentUl.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0 : false;
+    // Parse content sequentially to maintain order and handle headings + lists
+    const allElements = contentEl.querySelectorAll('h1, h2, h3, h4, h5, h6, ul');
+    let currentHeadingNode = null;
+    let headingLevel = 0;
+    let headingStack = []; // Stack to track heading hierarchy
+    
+    for (const element of allElements) {
+        if (element.tagName.match(/^H[1-6]$/)) {
+            // This is a heading element
+            const level = parseInt(element.tagName.charAt(1));
+            const headingImg = element.querySelector('img[src*="1x1"], img[src$="1x1.png"]');
             
-            if (!parentHasImages) {
-                // This is a root-level mindmap list
-                const nodes = traverseList(ul);
-                mindmapTree.push(...nodes);
+            if (headingImg) {
+                // This heading has a mindmap image
+                const headingText = headingImg.alt.trim();
+                if (headingText) {
+                    const headingNode = { label: headingText, children: [] };
+                    
+                    // Clear stack of headings at same or deeper level
+                    while (headingStack.length > 0 && headingStack[headingStack.length - 1].level >= level) {
+                        headingStack.pop();
+                    }
+                    
+                    if (headingStack.length === 0) {
+                        // This is a root-level heading
+                        mindmapTree.push(headingNode);
+                    } else {
+                        // This is a sub-heading, add it to the parent heading
+                        headingStack[headingStack.length - 1].node.children.push(headingNode);
+                    }
+                    
+                    // Add this heading to the stack
+                    headingStack.push({ level: level, node: headingNode });
+                    currentHeadingNode = headingNode;
+                    headingLevel = level;
+                }
+            } else {
+                // Heading without mindmap image, reset current context
+                currentHeadingNode = null;
+                headingLevel = 0;
+            }
+        } else if (element.tagName === 'UL') {
+            // This is a list element
+            const hasImages = element.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0;
+            
+            if (hasImages) {
+                // Check if this ul is not nested inside another ul with mindmap images
+                const parentUl = element.closest('ul:not(:scope)');
+                const parentHasImages = parentUl ? parentUl.querySelectorAll('img[src*="1x1"], img[src$="1x1.png"]').length > 0 : false;
+                
+                if (!parentHasImages) {
+                    // This is a root-level mindmap list
+                    const listNodes = traverseList(element);
+                    
+                    if (currentHeadingNode && headingLevel > 0) {
+                        // Add list nodes to the current heading
+                        currentHeadingNode.children.push(...listNodes);
+                    } else {
+                        // Add as root-level nodes
+                        mindmapTree.push(...listNodes);
+                    }
+                }
             }
         }
     }
@@ -197,7 +386,8 @@ function generateMindmapFromLists() {
         return generateTreeMermaid(mindmapTree);
     } else {
         // Generate Mermaid spider mindmap syntax (default)
-        let mermaid = "mindmap\n  root)Mindmap(\n";
+        const rootText = getRootNodeText();
+        let mermaid = `mindmap\n  root)${rootText}(\n`;
         
         for (const node of mindmapTree) {
             mermaid += treeToMermaid(node, 2);
@@ -370,6 +560,8 @@ function renderCurrentView() {
     if (!currentMarkdownText) {
         contentEl.innerHTML = '';
         currentMindmapData = null;
+        window.prerenderedMindmapSVG = null;
+        window.prerenderedMindmapId = null;
         updateMindmapButton();
         return;
     }
@@ -381,6 +573,8 @@ function renderCurrentView() {
         // Clear TOC and mindmap for raw markdown view
         currentTocData = [];
         currentMindmapData = null;
+        window.prerenderedMindmapSVG = null;
+        window.prerenderedMindmapId = null;
         updateTableOfContents();
         updateMindmapButton();
     } else {
@@ -392,9 +586,14 @@ function renderCurrentView() {
         // Generate table of contents after rendering
         generateTableOfContents();
         
-        // Clear previous mindmap data and update button visibility
+        // Clear previous mindmap data and prerendered content
         currentMindmapData = null;
+        window.prerenderedMindmapSVG = null;
+        window.prerenderedMindmapId = null;
         updateMindmapButton();
+        
+        // Prerender mindmap if detected for instant loading
+        prerenderMindmapIfDetected();
     }
 }
 
@@ -531,6 +730,65 @@ function generateMindmap() {
     updateMindmapDisplay();
 }
 
+// Prerender mindmap if detected to make loading instant
+function prerenderMindmapIfDetected() {
+    // Only prerender if we have HTML content and mindmap is detected
+    if (!isMarkdownView && detectMindmapContent()) {
+        console.log('Mindmap detected - prerendering for instant loading...');
+        
+        // Add subtle loading indicator to mindmap button
+        const mindmapButton = document.getElementById('mindmap-button');
+        if (mindmapButton) {
+            mindmapButton.classList.add('prerendering');
+            mindmapButton.title = 'Mindmap (prerendering for instant access...)';
+        }
+        
+        const mindmapData = generateMindmapFromLists();
+        if (mindmapData) {
+            currentMindmapData = mindmapData;
+            console.log('Mindmap prerendered successfully');
+            
+            // Optional: Pre-render the visual display as well for even faster loading
+            // This renders the Mermaid diagram in the background
+            prerenderMindmapDisplay().finally(() => {
+                // Remove loading indicator when prerendering is complete
+                if (mindmapButton) {
+                    mindmapButton.classList.remove('prerendering');
+                    mindmapButton.title = 'Mindmap';
+                }
+            });
+        }
+    }
+}
+
+// Pre-render the Mermaid diagram in the background for instant display
+async function prerenderMindmapDisplay() {
+    if (!currentMindmapData) {
+        return;
+    }
+    
+    try {
+        // Create a unique ID for this prerendered mindmap
+        const mindmapId = 'prerendered-mindmap-' + Date.now();
+        
+        // Pre-render the SVG in memory
+        console.log('Pre-rendering Mermaid diagram...');
+        const { svg } = await mermaid.render(mindmapId + '-svg', currentMindmapData);
+        
+        // Store the pre-rendered SVG for instant display
+        window.prerenderedMindmapSVG = svg;
+        window.prerenderedMindmapId = mindmapId;
+        
+        console.log('Mermaid diagram pre-rendered successfully');
+        
+    } catch (error) {
+        console.warn('Error pre-rendering mindmap (will generate on-demand):', error);
+        // Don't store anything if pre-rendering fails - fallback to on-demand generation
+        window.prerenderedMindmapSVG = null;
+        window.prerenderedMindmapId = null;
+    }
+}
+
 async function updateMindmapDisplay() {
     const mindmapContent = document.getElementById('mindmap-content');
     
@@ -540,6 +798,26 @@ async function updateMindmapDisplay() {
     }
     
     try {
+        // Check if we have a prerendered SVG available for instant display
+        if (window.prerenderedMindmapSVG && window.prerenderedMindmapId) {
+            console.log('Using prerendered mindmap for instant display');
+            
+            // Create container for the prerendered mindmap
+            const mindmapId = window.prerenderedMindmapId;
+            mindmapContent.innerHTML = `<div id="${mindmapId}" class="mindmap-diagram"></div>`;
+            
+            // Use the prerendered SVG instantly
+            document.getElementById(mindmapId).innerHTML = window.prerenderedMindmapSVG;
+            
+            // Apply styling to the prerendered mindmap
+            applyMindmapTextStyling(mindmapId);
+            
+            return; // Exit early since we used prerendered content
+        }
+        
+        // Fallback: Generate mindmap on-demand if no prerendered version available
+        console.log('No prerendered mindmap available, generating on-demand...');
+        
         // Create a unique ID for this mindmap
         const mindmapId = 'mindmap-' + Date.now();
         
@@ -552,6 +830,9 @@ async function updateMindmapDisplay() {
         // Render the mindmap using Mermaid
         const { svg } = await mermaid.render(mindmapId + '-svg', currentMindmapData);
         document.getElementById(mindmapId).innerHTML = svg;
+        
+        // FORCE text color changes after Mermaid renders
+        applyMindmapTextStyling(mindmapId);
         
     } catch (error) {
         console.error('Error rendering mindmap:', error);
@@ -574,8 +855,11 @@ function toggleMindmapPanel() {
     const isVisible = mindmapPanel.classList.contains('visible');
     
     if (!isVisible && !currentMindmapData) {
-        // Generate mindmap if not already generated
+        // Generate mindmap if not already prerendered
         generateMindmap();
+    } else if (!isVisible && currentMindmapData) {
+        // If we have mindmap data (prerendered or otherwise), update display
+        updateMindmapDisplay();
     }
     
     mindmapPanel.classList.toggle('visible');

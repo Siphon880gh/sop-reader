@@ -2,7 +2,7 @@
 
 This document contains examples of mindmap syntax using 1x1.png images.
 
-## Project Structure
+## Project Structure ![Project Structure](img/1x1.png)
 
 - This is a detailed description about the frontend development ![Frontend](img/1x1.png)
   - User interface components and layouts ![UI Components](img/1x1.png)
