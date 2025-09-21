@@ -98,3 +98,29 @@ The AI should provide:
 5. **Testing instructions** with sample markdown
 6. **Troubleshooting section** for common issues
 ```
+
+
+---
+
+Then let's add the ability to just add popover to any text:
+
+1. Prompt to add the feature:
+```
+For the link preview in a popup, lets add a new feature that lets user define a preview on top of any text. If it an image ends in 1x2.png or 1x2, then if the alt tag has ##, what's left of ## is a link / anchor text and what's to the right will be the preview text. Clicking link should go nowhere (goes to #).
+
+In addition, create or update a popover-test.md to test this new feature. And update Readme.md about this feature.
+```
+
+2. Prompt (subsequently in the same chat thread) to stylize these types of hint links:
+```
+Awesome. For those links created by the ## should have a class .no-link. We should style it to look different from oher links
+
+Here are some ideas you can choose to follow for styling Custom Preview Links (.no-link):
+- Color: Purple
+- Border: Dashed
+- Background: Light purple
+- Cursor: Help
+- Hover Effect: Lift + shadow + color change
+- Font Weight: Medium (500)
+- Padding: 1px 4px
+```
